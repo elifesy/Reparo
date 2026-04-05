@@ -1,7 +1,8 @@
 app = "reparo-app"
-primary_region = "dxb"
+primary_region = "sin"
 
 [build]
+  dockerfile = "Dockerfile"
 
 [env]
   PORT = "3000"
@@ -9,7 +10,7 @@ primary_region = "dxb"
 
 [mounts]
   source = "reparo_data"
-  destination = "/app/db"
+  destination = "/data"
 
 [[services]]
   protocol = "tcp"

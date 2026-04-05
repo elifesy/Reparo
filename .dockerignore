@@ -1,0 +1,11 @@
+# flyctl launch added from reparo_portal/.gitignore
+reparo_portal/**/node_modules
+reparo_portal/**/db/*.sqlite
+reparo_portal/**/db/*.sqlite-wal
+reparo_portal/**/db/*.sqlite-shm
+reparo_portal/**/.env
+reparo_portal/**/.env.local
+reparo_portal/**/*.log
+reparo_portal/**/.DS_Store
+reparo_portal/**/Thumbs.db
+fly.toml

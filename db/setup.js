@@ -3,7 +3,10 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'db', 'reparo.sqlite');
+// Production: volume mounted at /data — Local: next to this file
+const DB_PATH = process.env.NODE_ENV === 'production'
+  ? '/data/reparo.sqlite'
+  : path.join(__dirname, 'reparo.sqlite');
 const db = new Database(DB_PATH);
 
 // ── Pragmas for performance ──

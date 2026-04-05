@@ -1,0 +1,46 @@
+app = "reparo-app"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "3000"
+  NODE_ENV = "production"
+
+[mounts]
+  source = "reparo_data"
+  destination = "/data"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3000
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    grace_period = "5s"
+    interval = "15s"
+    restart_limit = 0
+    timeout = "2s"
+
+  [[services.http_checks]]
+    interval = "10s"
+    grace_period = "10s"
+    method = "get"
+    path = "/api/health"
+    protocol = "http"
+    timeout = "2s"
+    tls_skip_verify = false
