@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reparo — Device Service Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0c10; --bg2:#0f1217; --bg3:#161b24; --bg4:#1e2535;
+  --border:#232b3a; --border2:#2d3748;
+  --accent:#f59e0b; --accent2:#fbbf24; --accent-dim:rgba(245,158,11,0.12); --accent-glow:rgba(245,158,11,0.25);
+  --blue:#3b82f6; --blue-dim:rgba(59,130,246,0.12);
+  --green:#10b981; --green-dim:rgba(16,185,129,0.12);
+  --red:#ef4444; --red-dim:rgba(239,68,68,0.12);
+  --purple:#8b5cf6; --purple-dim:rgba(139,92,246,0.12);
+  --orange:#f97316; --orange-dim:rgba(249,115,22,0.12);
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
+  --radius:10px; --radius2:6px;
+  --shadow:0 4px 24px rgba(0,0,0,0.5); --shadow2:0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ══════════════════════════════════════════════
+   THEME SYSTEM
+   Default (dark) lives in :root above.
+   Each theme overrides only the background/text/border vars.
+   Semantic colors (accent, blue, green, red, purple) stay
+   consistent across all themes for badge/status coherence.
+══════════════════════════════════════════════ */
+
+/* LIGHT */
+[data-theme="light"] {
+  --bg:#f8f9fb; --bg2:#ffffff; --bg3:#f1f3f7; --bg4:#e8ecf3;
+  --border:#dde2ed; --border2:#c8cfdf;
+  --text:#1a2035; --text2:#4a5568; --text3:#94a3b8;
+  --shadow:0 4px 24px rgba(0,0,0,0.1); --shadow2:0 2px 8px rgba(0,0,0,0.08);
+  --accent-dim:rgba(245,158,11,0.1); --accent-glow:rgba(245,158,11,0.2);
+  --blue-dim:rgba(59,130,246,0.1);
+  --green-dim:rgba(16,185,129,0.1);
+  --red-dim:rgba(239,68,68,0.1);
+  --purple-dim:rgba(139,92,246,0.1);
+  --orange-dim:rgba(249,115,22,0.1);
+}
+[data-theme="light"] body::before {
+  background-image:
+    linear-gradient(rgba(245,158,11,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,158,11,0.04) 1px, transparent 1px);
+}
+[data-theme="light"] .topnav { background:rgba(248,249,251,0.97); }
+[data-theme="light"] .sidebar { background:#fff; }
+[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea { background:#f1f3f7; color:#1a2035; }
+[data-theme="light"] pre { background:#f1f3f7; border-color:#dde2ed; }
+[data-theme="light"] .overlay { background:rgba(0,0,0,0.5); }
+
+/* OCEAN — deep blue dark */
+[data-theme="ocean"] {
+  --bg:#060e1e; --bg2:#0b1628; --bg3:#101f38; --bg4:#162847;
+  --border:#1a2f4a; --border2:#243d60;
+  --accent:#38bdf8; --accent2:#7dd3fc; --accent-dim:rgba(56,189,248,0.12); --accent-glow:rgba(56,189,248,0.25);
+  --text:#e0f2fe; --text2:#7eb8d4; --text3:#3b6f8c;
+  --shadow:0 4px 24px rgba(0,0,0,0.6); --shadow2:0 2px 8px rgba(0,0,0,0.5);
+  --blue-dim:rgba(56,189,248,0.12);
+}
+[data-theme="ocean"] body::before {
+  background-image:
+    linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+[data-theme="ocean"] .topnav { background:rgba(6,14,30,0.96); }
+
+/* SAND — warm cream light */
+[data-theme="sand"] {
+  --bg:#fdf8f0; --bg2:#fffdf8; --bg3:#f5ede0; --bg4:#ede0cc;
+  --border:#e0ccb0; --border2:#c8b090;
+  --accent:#c2410c; --accent2:#ea580c; --accent-dim:rgba(194,65,12,0.1); --accent-glow:rgba(194,65,12,0.2);
+  --blue:#2563eb; --blue-dim:rgba(37,99,235,0.1);
+  --green:#15803d; --green-dim:rgba(21,128,61,0.1);
+  --red:#dc2626; --red-dim:rgba(220,38,38,0.1);
+  --purple:#7c3aed; --purple-dim:rgba(124,58,237,0.1);
+  --orange:#c2410c; --orange-dim:rgba(194,65,12,0.1);
+  --text:#292215; --text2:#6b5a3e; --text3:#a8926e;
+  --shadow:0 4px 24px rgba(0,0,0,0.1); --shadow2:0 2px 8px rgba(0,0,0,0.07);
+}
+[data-theme="sand"] body::before {
+  background-image:
+    linear-gradient(rgba(194,65,12,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194,65,12,0.04) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+[data-theme="sand"] .topnav { background:rgba(253,248,240,0.97); }
+[data-theme="sand"] .sidebar { background:#fffdf8; }
+[data-theme="sand"] input, [data-theme="sand"] select, [data-theme="sand"] textarea { background:#f5ede0; color:#292215; }
+[data-theme="sand"] pre { background:#f5ede0; border-color:#e0ccb0; }
+
+/* VIOLET — purple dark */
+[data-theme="violet"] {
+  --bg:#0d0814; --bg2:#130d1e; --bg3:#1a1228; --bg4:#221832;
+  --border:#2a1d3e; --border2:#382754;
+  --accent:#a78bfa; --accent2:#c4b5fd; --accent-dim:rgba(167,139,250,0.12); --accent-glow:rgba(167,139,250,0.25);
+  --blue:#60a5fa; --blue-dim:rgba(96,165,250,0.12);
+  --green:#34d399; --green-dim:rgba(52,211,153,0.12);
+  --text:#ede9fe; --text2:#9d88c4; --text3:#5b4a82;
+  --shadow:0 4px 24px rgba(0,0,0,0.6); --shadow2:0 2px 8px rgba(0,0,0,0.5);
+  --purple-dim:rgba(167,139,250,0.15);
+}
+[data-theme="violet"] body::before {
+  background-image:
+    linear-gradient(rgba(167,139,250,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+[data-theme="violet"] .topnav { background:rgba(13,8,20,0.96); }
+
+/* THEME SWITCHER UI */
+.theme-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:8px;
+  background:var(--bg3); border:1px solid var(--border);
+  cursor:pointer; font-size:16px; transition:all .15s;
+  position:relative; flex-shrink:0;
+}
+.theme-btn:hover { border-color:var(--accent); }
+
+.theme-panel {
+  position:absolute; top:calc(100% + 10px); right:0;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:12px; padding:16px; width:260px;
+  box-shadow:var(--shadow); z-index:300;
+  display:none;
+}
+.theme-panel.open { display:block; }
+.theme-panel-title {
+  font-size:11px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; color:var(--text3); margin-bottom:12px;
+}
+.theme-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.theme-option {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px; border-radius:8px; cursor:pointer;
+  border:2px solid transparent; transition:all .15s;
+  background:var(--bg3);
+}
+.theme-option:hover { border-color:var(--border2); }
+.theme-option.active { border-color:var(--accent); }
+.theme-swatch {
+  width:22px; height:22px; border-radius:6px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px;
+}
+.theme-name { font-size:12px; font-weight:600; color:var(--text2); }
+.theme-option.active .theme-name { color:var(--accent); }
+
+/* Light-theme topnav text fix */
+[data-theme="light"] .nav-tab, [data-theme="sand"] .nav-tab { color:var(--text2); }
+[data-theme="light"] .nav-tab:hover, [data-theme="sand"] .nav-tab:hover { color:var(--text); }
+[data-theme="light"] .logo-text, [data-theme="sand"] .logo-text { color:var(--text); }
+[data-theme="light"] .nav-uname, [data-theme="sand"] .nav-uname { color:var(--text2); }
+
+/* Transition for smooth theme switching */
+body, .topnav, .sidebar, .content, .block, .card, .tbl-wrap,
+input, select, textarea, .modal, .overlay, .stat {
+  transition: background-color .25s ease, border-color .25s ease, color .2s ease;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 40% at 80% 100%,rgba(59,130,246,0.05) 0%,transparent 60%);}
+
+/* NAV */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,12,16,0.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;height:54px;gap:6px;}
+.logo{display:flex;align-items:center;gap:8px;margin-right:16px;text-decoration:none;}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-text{font-size:15px;font-weight:800;letter-spacing:-0.5px;color:var(--text);}
+.logo-text span{color:var(--accent);}
+.nav-tabs{display:flex;gap:3px;flex:1;}
+.nav-tab{padding:5px 14px;border-radius:var(--radius2);cursor:pointer;font-size:13px;font-weight:600;
+  border:none;background:transparent;color:var(--text2);transition:all .15s;font-family:'Syne',sans-serif;}
+.nav-tab:hover{background:var(--bg3);color:var(--text);}
+.nav-tab.active{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,158,11,0.25);}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.nav-user{display:flex;align-items:center;gap:8px;}
+.nav-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+.nav-uname{font-size:12px;font-weight:600;color:var(--text2);}
+.nav-logout{padding:4px 10px;border-radius:var(--radius2);background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif;}
+.nav-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* VIEWS */
+.view{display:none;padding-top:54px;min-height:100vh;position:relative;z-index:1;}
+.view.active{display:block;}
+
+/* AUTH */
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:32px 16px;}
+.auth-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:36px;box-shadow:var(--shadow);}
+.auth-head{text-align:center;margin-bottom:28px;}
+.auth-ico{font-size:36px;margin-bottom:10px;}
+.auth-title{font-size:22px;font-weight:800;margin-bottom:4px;}
+.auth-sub{font-size:13px;color:var(--text2);}
+.atabs{display:flex;background:var(--bg3);border-radius:7px;padding:3px;margin-bottom:24px;}
+.atab{flex:1;text-align:center;padding:7px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600;
+  transition:all .15s;color:var(--text2);border:none;background:transparent;font-family:'Syne',sans-serif;}
+.atab.active{background:var(--bg);color:var(--accent);box-shadow:var(--shadow2);}
+
+/* FORMS */
+.fg{margin-bottom:16px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;letter-spacing:0.5px;text-transform:uppercase;}
+label.plain{text-transform:none;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer;}
+input,select,textarea{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--radius2);color:var(--text);font-size:13px;font-family:'Syne',sans-serif;
+  transition:border-color .15s,box-shadow .15s;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+select option{background:var(--bg3);}
+textarea{resize:vertical;min-height:80px;}
+.ico-wrap{position:relative;}
+.ico-wrap input{padding-left:36px;}
+.ico-wrap .ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none;}
+.pw-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:13px;user-select:none;}
+.hint{font-size:11px;color:var(--text3);margin-top:4px;}
+.ferr{font-size:11px;color:var(--red);margin-top:4px;}
+.pw-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:6px;}
+.pw-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0%;}
+.pw-lbl{font-size:11px;margin-top:3px;color:var(--text3);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius2);
+  font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:'Syne',sans-serif;letter-spacing:0.2px;text-decoration:none;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 14px var(--accent-glow);}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,0.25);}
+.btn-success:hover{background:var(--green);color:#fff;}
+.btn-ghost{background:transparent;color:var(--text2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-full{width:100%;justify-content:center;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-xs{padding:3px 8px;font-size:11px;}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{font-size:11px;color:var(--text3);}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 54px);}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;
+  position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;flex-shrink:0;}
+.sb-section{margin-bottom:4px;}
+.sb-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:10px 16px 4px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;
+  color:var(--text2);font-size:13px;font-weight:600;transition:all .1s;border-left:2px solid transparent;}
+.sb-item:hover{background:var(--bg3);color:var(--text);}
+.sb-item.active{background:var(--accent-dim);color:var(--accent);border-left-color:var(--accent);}
+.sb-item .si{font-size:15px;width:18px;text-align:center;}
+.sb-badge{margin-left:auto;background:var(--accent);color:#000;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;}
+.content{flex:1;padding:28px;overflow-x:hidden;}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.ph-left .ph-title{font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+.ph-left .ph-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.ph-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;inset:0;border-radius:var(--radius);}
+.stat.c-amber::before{background:linear-gradient(135deg,var(--accent-dim) 0%,transparent 65%);}
+.stat.c-blue::before{background:linear-gradient(135deg,var(--blue-dim) 0%,transparent 65%);}
+.stat.c-green::before{background:linear-gradient(135deg,var(--green-dim) 0%,transparent 65%);}
+.stat.c-red::before{background:linear-gradient(135deg,var(--red-dim) 0%,transparent 65%);}
+.stat.c-purple::before{background:linear-gradient(135deg,var(--purple-dim) 0%,transparent 65%);}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-1px;position:relative;}
+.stat.c-amber .stat-val{color:var(--accent);}
+.stat.c-blue .stat-val{color:var(--blue);}
+.stat.c-green .stat-val{color:var(--green);}
+.stat.c-red .stat-val{color:var(--red);}
+.stat.c-purple .stat-val{color:var(--purple);}
+.stat-lbl{font-size:11px;color:var(--text2);font-weight:600;margin-top:2px;position:relative;}
+.stat-ico{position:absolute;right:14px;top:14px;font-size:24px;opacity:0.2;}
+
+/* TABLE */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px;}
+.tbl-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+.tbl-title{font-size:14px;font-weight:700;flex:1;}
+.srch{position:relative;}
+.srch input{padding:6px 10px 6px 32px;width:200px;font-size:12px;}
+.srch-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text3);}
+.fsel{padding:6px 10px;font-size:12px;width:auto;}
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg3);}
+td{padding:11px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+.empty-row{text-align:center;padding:40px 16px;color:var(--text3);font-size:13px;}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bdg::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.bdg-received{background:var(--blue-dim);color:var(--blue);} .bdg-received::before{background:var(--blue);}
+.bdg-diagnosed{background:var(--purple-dim);color:var(--purple);} .bdg-diagnosed::before{background:var(--purple);}
+.bdg-inprogress{background:var(--accent-dim);color:var(--accent);} .bdg-inprogress::before{background:var(--accent);}
+.bdg-awaitingparts{background:var(--orange-dim);color:var(--orange);} .bdg-awaitingparts::before{background:var(--orange);}
+.bdg-ready{background:var(--green-dim);color:var(--green);} .bdg-ready::before{background:var(--green);}
+.bdg-dispatched{background:rgba(100,116,139,.12);color:var(--text2);} .bdg-dispatched::before{background:var(--text3);}
+.bdg-cancelled{background:var(--red-dim);color:var(--red);} .bdg-cancelled::before{background:var(--red);}
+.bdg-admin{background:var(--purple-dim);color:var(--purple);}
+.bdg-engineer{background:var(--blue-dim);color:var(--blue);}
+.bdg-customer{background:var(--green-dim);color:var(--green);}
+.bdg-active{background:var(--green-dim);color:var(--green);}
+.bdg-inactive{background:var(--red-dim);color:var(--red);}
+.bdg-onleave{background:var(--orange-dim);color:var(--orange);}
+
+/* PRIORITY */
+.pri{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.pri-high{color:var(--red);}
+.pri-medium{color:var(--accent);}
+.pri-low{color:var(--green);}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .15s;}
+.card:hover{border-color:var(--border2);}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.card-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:500;}
+.card-title{font-size:14px;font-weight:700;margin-bottom:3px;}
+.card-sub{font-size:12px;color:var(--text2);}
+.card-meta{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.cmi{font-size:11px;color:var(--text3);}
+.cmi strong{display:block;color:var(--text2);font-size:12px;font-weight:600;}
+.card-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+
+/* BLOCKS */
+.block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+.block-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
+  z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;
+  opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;
+  width:100%;max-width:540px;max-height:88vh;overflow-y:auto;
+  transform:scale(.95);transition:transform .2s;box-shadow:var(--shadow);}
+.overlay.open .modal{transform:scale(1);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-size:18px;font-weight:800;}
+.modal-x{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:3px 7px;
+  border-radius:var(--radius2);transition:all .15s;}
+.modal-x:hover{background:var(--bg3);color:var(--text);}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:22px;}
+.tl::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:16px;}
+.tl-item::before{content:'';position:absolute;left:-17px;top:4px;width:9px;height:9px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--bg2);}
+.tl-item.done::before{background:var(--green);}
+.tl-item.pending::before{background:var(--border2);}
+.tl-date{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:2px;}
+.tl-text{font-size:12px;font-weight:600;}
+.tl-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+
+/* STEPPER */
+.stepper{display:flex;margin:18px 0;}
+.step{flex:1;position:relative;}
+.step-line{position:absolute;top:13px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0;}
+.step:last-child .step-line{display:none;}
+.step-dot{width:26px;height:26px;border-radius:50%;background:var(--bg4);border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin:0 auto;position:relative;z-index:1;}
+.step.done .step-dot{background:var(--green);border-color:var(--green);color:#fff;}
+.step.done .step-line{background:var(--green);}
+.step.active .step-dot{background:var(--accent);border-color:var(--accent);color:#000;}
+.step-lbl{text-align:center;font-size:9px;font-weight:700;color:var(--text3);margin-top:5px;letter-spacing:0.3px;}
+.step.done .step-lbl,.step.active .step-lbl{color:var(--text2);}
+
+/* ALERT */
+.alert{padding:10px 14px;border-radius:var(--radius2);font-size:12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px;}
+.alert-info{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,0.2);}
+.alert-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.alert-warning{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,158,11,0.2);}
+.alert-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+
+/* TRACK */
+.track-wrap{max-width:580px;margin:0 auto;}
+.track-row{display:flex;gap:10px;margin-bottom:20px;}
+.track-row input{flex:1;font-size:15px;padding:12px 16px;font-family:'JetBrains Mono',monospace;}
+.track-result{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+.tr-id{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--accent);}
+.tr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+.tr-field{padding:10px 14px;background:var(--bg3);border-radius:var(--radius2);}
+.tr-fl{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-bottom:3px;font-weight:700;}
+.tr-fv{font-size:13px;font-weight:600;}
+
+/* PROGRESS BARS */
+.pbar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.pbar-label{font-size:12px;font-weight:600;color:var(--text2);width:120px;flex-shrink:0;}
+.pbar-track{flex:1;height:14px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:4px;transition:width .5s;}
+.pbar-val{font-size:12px;font-weight:700;width:28px;text-align:right;}
+
+/* CHECKLIST */
+.cl-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);}
+.cl-item:last-child{border-bottom:none;}
+.cl-cb{width:16px;height:16px;cursor:pointer;margin-top:1px;flex-shrink:0;}
+.cl-text{font-size:13px;font-weight:500;flex:1;}
+.bp-item{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:var(--bg3);border-radius:8px;border-left:3px solid var(--accent);margin-bottom:8px;}
+.bp-ico{font-size:16px;flex-shrink:0;}
+.bp-text{font-size:12px;font-weight:500;color:var(--text2);}
+
+/* ACTIVITY FEED */
+.af-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.af-item:last-child{border-bottom:none;}
+.af-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.af-body{flex:1;}
+.af-text{font-size:12px;font-weight:500;}
+.af-time{font-size:10px;color:var(--text3);margin-top:2px;font-family:'JetBrains Mono',monospace;}
+
+/* TOAST */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:10px 18px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;
+  box-shadow:var(--shadow);animation:tslide .25s ease;}
+.toast-success{border-color:rgba(16,185,129,.4);color:var(--green);}
+.toast-error{border-color:rgba(239,68,68,.4);color:var(--red);}
+.toast-info{border-color:rgba(59,130,246,.4);color:var(--blue);}
+@keyframes tslide{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* CHIP / MISC */
+.chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:var(--bg4);color:var(--text2);border:1px solid var(--border);}
+.mono{font-family:'JetBrains Mono',monospace;}
+.hidden{display:none!important;}
+.red-txt{color:var(--red)!important;}
+.green-txt{color:var(--green)!important;}
+.muted{color:var(--text2);}
+.dim{color:var(--text3);}
+.bold{font-weight:700;}
+.text-xs{font-size:11px;}
+.text-sm{font-size:12px;}
+.mt1{margin-top:4px;}.mt2{margin-top:8px;}.mt3{margin-top:14px;}.mt4{margin-top:20px;}
+.mb1{margin-bottom:4px;}.mb2{margin-bottom:8px;}.mb3{margin-bottom:14px;}
+.flex{display:flex;}.gap1{gap:4px;}.gap2{gap:8px;}.gap3{gap:12px;}
+.items-center{align-items:center;}.justify-between{justify-content:space-between;}.flex-wrap{flex-wrap:wrap;}
+.eng-perf-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:8px;margin-bottom:8px;}
+.eng-avatar{width:34px;height:34px;border-radius:9px;background:var(--blue-dim);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
+@media(max-width:768px){.sidebar{display:none;}.content{padding:14px;}.fr{grid-template-columns:1fr;}.stats{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}.three-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a class="logo"><div class="logo-icon">⚡</div><div class="logo-text">Re<span>paro</span></div></a>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="switchPortal('customer')">🧑 Customer</button>
+    <button class="nav-tab" onclick="switchPortal('engineer')">🔧 Engineer</button>
+    <button class="nav-tab" onclick="switchPortal('admin')">⚙️ Admin</button>
+  </div>
+  <div class="nav-right">
+    <div id="theme-wrap" style="position:relative;display:flex;align-items:center"></div>
+    <div class="nav-user hidden" id="navUser">
+      <div class="nav-avatar" id="navAvatar"></div>
+      <div class="nav-uname" id="navUname"></div>
+      <button class="nav-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<div id="toasts"></div>
+
+<!-- ═══════════════════════════════════════════
+     CUSTOMER PORTAL
+═══════════════════════════════════════════ -->
+<div class="view active" id="view-customer">
+  <!-- AUTH -->
+  <div class="auth-wrap" id="c-auth">
+    <div class="auth-box">
+      <div class="auth-head"><div class="auth-ico">📱</div><div class="auth-title">Customer Portal</div><div class="auth-sub">Submit & track your device service requests</div></div>
+      <div class="atabs"><button class="atab active" id="c-login-tab" onclick="cAuthTab('login')">Sign In</button><button class="atab" id="c-reg-tab" onclick="cAuthTab('register')">Register</button></div>
+      <!-- LOGIN -->
+      <div id="c-login-form">
+        <div class="fg"><label>Email</label><div class="ico-wrap"><span class="ico">✉</span><input type="email" id="c-email" placeholder="you@example.com"></div></div>
+        <div class="fg"><label>Password</label><div class="ico-wrap"><span class="ico">🔒</span><input type="password" id="c-pass" placeholder="Your password"><span class="pw-eye" onclick="togglePw('c-pass',this)">👁</span></div></div>
+        <div class="flex justify-between items-center mb3 mt2" style="font-size:12px">
+          <label class="plain" style="font-size:12px;font-weight:500"><input type="checkbox"> Remember me</label>
+          <span style="color:var(--accent);cursor:pointer" onclick="toast('info','Password reset email sent!')">Forgot password?</span>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doLogin('customer')">Sign In →</button>
+        <div class="divider"><div class="divider-line"></div><div class="divider-text">or</div><div class="divider-line"></div></div>
+        <div class="flex gap2">
+          <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="demoLogin('customer')">🚀 Demo Login</button>
+          <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="showTrackPublic()">🔍 Track Only</button>
+        </div>
+        <div class="alert alert-info mt3">💡 Demo: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1f7b7a72705f6b7a7c776c7a6d69317c7072">[email&#160;protected]</a></strong> / <strong>Demo1234!</strong></div>
+      </div>
+      <!-- REGISTER -->
+      <div id="c-reg-form" class="hidden">
+        <div class="fr">
+          <div class="fg"><label>First Name *</label><input type="text" id="r-first" placeholder="Ahmad"></div>
+          <div class="fg"><label>Last Name *</label><input type="text" id="r-last" placeholder="Al Rashid"></div>
+        </div>
+        <div class="fg"><label>Email *</label><div class="ico-wrap"><span class="ico">✉</span><input type="email" id="r-email" placeholder="you@example.com"></div></div>
+        <div class="fg"><label>Phone *</label><div class="ico-wrap"><span class="ico">📞</span><input type="tel" id="r-phone" placeholder="+971 50 000 0000"></div></div>
+        <div class="fg"><label>Password *</label><div class="ico-wrap"><span class="ico">🔒</span><input type="password" id="r-pass" placeholder="Min. 8 characters" oninput="pwStrength(this.value)"><span class="pw-eye" onclick="togglePw('r-pass',this)">👁</span></div>
+          <div class="pw-bar"><div class="pw-fill" id="pw-fill"></div></div><div class="pw-lbl" id="pw-lbl">Enter a password</div></div>
+        <div class="fg"><label>Confirm Password *</label><input type="password" id="r-pass2" placeholder="Repeat password"></div>
+        <div class="fg"><label class="plain" style="font-size:12px;text-transform:none;font-weight:500"><input type="checkbox" id="r-agree"> I agree to the <u style="color:var(--accent);cursor:pointer">Terms of Service</u></label></div>
+        <button class="btn btn-primary btn-full" onclick="doRegister()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+  <!-- DASHBOARD -->
+  <div class="hidden" id="c-dash">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sb-section"><div class="sb-lbl">Menu</div>
+          <div class="sb-item active" id="cs-home" onclick="cNav('home')"><span class="si">🏠</span> Dashboard</div>
+          <div class="sb-item" id="cs-new" onclick="cNav('new')"><span class="si">➕</span> New Request</div>
+          <div class="sb-item" id="cs-requests" onclick="cNav('requests')"><span class="si">📋</span> My Requests</div>
+          <div class="sb-item" id="cs-track" onclick="cNav('track')"><span class="si">🔍</span> Track by ID</div>
+        </div>
+        <div class="sb-section"><div class="sb-lbl">Account</div>
+          <div class="sb-item" onclick="openProfileModal()"><span class="si">👤</span> My Profile</div>
+          <div class="sb-item" onclick="toast('info','🔔 Notification preferences saved')"><span class="si">🔔</span> Notifications</div>
+        </div>
+      </aside>
+      <main class="content">
+        <!-- HOME -->
+        <div id="cp-home">
+          <div class="ph"><div class="ph-left"><div class="ph-title" id="c-greeting">Welcome back!</div><div class="ph-sub">Here's your service overview</div></div>
+            <div class="ph-right"><button class="btn btn-primary" onclick="cNav('new')">+ New Request</button></div></div>
+          <div class="stats" id="c-stats"></div>
+          <div class="two-col">
+            <div class="block"><div class="block-title">🕒 Recent Requests</div><div id="c-recent-list"></div></div>
+            <div class="block"><div class="block-title">📢 Announcements</div><div id="c-announcements"></div></div>
+          </div>
+        </div>
+        <!-- NEW REQUEST -->
+        <div id="cp-new" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">New Service Request</div><div class="ph-sub">Fill in all device details accurately</div></div></div>
+          <div class="block"><div class="block-title">📱 Device Information</div>
+            <div class="fr">
+              <div class="fg"><label>Device Type *</label><select id="n-type"><option value="">Select…</option><option>Smartphone</option><option>Laptop</option><option>Tablet</option><option>Desktop PC</option><option>Smartwatch</option><option>Gaming Console</option><option>Printer</option><option>TV / Monitor</option><option>Other</option></select></div>
+              <div class="fg"><label>Brand *</label><select id="n-brand"><option value="">Select…</option><option>Apple</option><option>Samsung</option><option>Dell</option><option>HP</option><option>Lenovo</option><option>Sony</option><option>LG</option><option>Huawei</option><option>Xiaomi</option><option>Other</option></select></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Model *</label><input type="text" id="n-model" placeholder="e.g. iPhone 15 Pro"></div>
+              <div class="fg"><label>Serial / IMEI</label><input type="text" id="n-serial" placeholder="Optional" class="mono"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Purchase Date</label><input type="month" id="n-purchase"></div>
+              <div class="fg"><label>Warranty Status</label><select id="n-warranty"><option>Not sure</option><option>Under warranty</option><option>Expired</option><option>No warranty</option></select></div>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">🔧 Issue Details</div>
+            <div class="fg"><label>Issue Category *</label><select id="n-issue"><option value="">Select…</option><option>Screen / Display</option><option>Battery</option><option>Charging / Power</option><option>Speaker / Microphone</option><option>Camera</option><option>Keyboard / Trackpad</option><option>Software / OS</option><option>Connectivity (WiFi/BT)</option><option>Physical Damage</option><option>Water Damage</option><option>Other</option></select></div>
+            <div class="fg"><label>Describe the Problem *</label><textarea id="n-desc" placeholder="When did it start? What happened? Any error messages?" style="min-height:100px"></textarea></div>
+            <div class="fr">
+              <div class="fg"><label>Priority</label><select id="n-priority"><option value="Low">Low — Not urgent</option><option value="Medium" selected>Medium — Moderate</option><option value="High">High — Urgent</option></select></div>
+              <div class="fg"><label>Preferred Contact</label><select id="n-contact"><option>Phone call</option><option>WhatsApp</option><option>Email</option><option>SMS</option></select></div>
+            </div>
+            <div class="fg"><label>Accessories / Items Included</label><input type="text" id="n-acc" placeholder="e.g. charger, case, stylus"></div>
+            <div class="fg mt2"><label class="plain" style="text-transform:none;font-size:13px"><input type="checkbox" id="n-consent"> I confirm device info is accurate and authorize Reparo to diagnose and repair</label></div>
+          </div>
+          <div class="flex gap2 justify-between">
+            <button class="btn btn-secondary" onclick="cNav('home')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitCustRequest()">Submit Request →</button>
+          </div>
+        </div>
+        <!-- MY REQUESTS -->
+        <div id="cp-requests" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">My Requests</div><div class="ph-sub">All your service history</div></div></div>
+          <div class="tbl-wrap">
+            <div class="tbl-bar"><div class="tbl-title">Service Requests</div>
+              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search…" oninput="filterCTable(this.value)"></div>
+              <select class="fsel" onchange="filterCStatus(this.value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option></select>
+            </div>
+            <table><thead><tr><th>ID</th><th>Device</th><th>Issue</th><th>Priority</th><th>Intake</th><th>Last Update</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="c-tbl-body"></tbody></table>
+          </div>
+        </div>
+        <!-- TRACK -->
+        <div id="cp-track" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Track Request</div><div class="ph-sub">Enter a service ID to check status</div></div></div>
+          <div class="track-wrap">
+            <div class="track-row"><input type="text" id="c-track-id" class="mono" placeholder="e.g. RPR-0001" oninput="this.value=this.value.toUpperCase()"><button class="btn btn-primary" onclick="doTrack()">Track →</button></div>
+            <div id="c-track-result"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <!-- PUBLIC TRACK (no login) -->
+  <div class="hidden" id="c-public-track">
+    <div class="auth-wrap">
+      <div class="auth-box" style="max-width:560px">
+        <div class="auth-head"><div class="auth-ico">🔍</div><div class="auth-title">Track Your Request</div><div class="auth-sub">No login required — just enter your request ID</div></div>
+        <div class="track-row"><input type="text" id="pub-track-id" class="mono" placeholder="e.g. RPR-0001" oninput="this.value=this.value.toUpperCase()"><button class="btn btn-primary" onclick="doPublicTrack()">Track →</button></div>
+        <div id="pub-track-result"></div>
+        <div class="divider"><div class="divider-line"></div><div class="divider-text">or</div><div class="divider-line"></div></div>
+        <button class="btn btn-secondary btn-full" onclick="backToLogin()">← Sign In to see all requests</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ENGINEER PORTAL
+═══════════════════════════════════════════ -->
+<div class="view" id="view-engineer">
+  <div class="auth-wrap" id="e-auth">
+    <div class="auth-box">
+      <div class="auth-head"><div class="auth-ico">🔧</div><div class="auth-title">Engineer Portal</div><div class="auth-sub">Authorized technicians only</div></div>
+      <div class="fg"><label>Employee ID or Email</label><div class="ico-wrap"><span class="ico">🪪</span><input type="text" id="e-user" placeholder="ENG-001 or engineer@reparo.com"></div></div>
+      <div class="fg"><label>Password</label><div class="ico-wrap"><span class="ico">🔒</span><input type="password" id="e-pass" placeholder="Password"><span class="pw-eye" onclick="togglePw('e-pass',this)">👁</span></div></div>
+      <button class="btn btn-primary btn-full mt2" onclick="doLogin('engineer')">Access Dashboard →</button>
+      <button class="btn btn-secondary btn-full mt2" onclick="demoLogin('engineer')">🚀 Demo Engineer Login</button>
+      <div class="alert alert-warning mt3">🔐 All actions are logged and audited.</div>
+    </div>
+  </div>
+  <div class="hidden" id="e-dash">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sb-section"><div class="sb-lbl">Engineer</div>
+          <div class="sb-item active" id="es-home" onclick="eNav('home')"><span class="si">🏠</span> Dashboard</div>
+          <div class="sb-item" id="es-assigned" onclick="eNav('assigned')"><span class="si">📌</span> Assigned <span class="sb-badge" id="e-count">0</span></div>
+          <div class="sb-item" id="es-record" onclick="eNav('record')"><span class="si">➕</span> Record Service</div>
+          <div class="sb-item" id="es-all" onclick="eNav('all')"><span class="si">📋</span> All Services</div>
+          <div class="sb-item" id="es-checklist" onclick="eNav('checklist')"><span class="si">✅</span> Intake Checklist</div>
+        </div>
+        <div class="sb-section"><div class="sb-lbl">Tools</div>
+          <div class="sb-item" onclick="toast('info','📦 Parts catalog opening...')"><span class="si">🛒</span> Parts Catalog</div>
+          <div class="sb-item" onclick="eNav('reports')"><span class="si">📊</span> My Reports</div>
+        </div>
+      </aside>
+      <main class="content">
+        <!-- ENG HOME -->
+        <div id="ep-home">
+          <div class="ph"><div class="ph-left"><div class="ph-title" id="e-greeting">Engineer Dashboard</div><div class="ph-sub" id="e-date"></div></div>
+            <button class="btn btn-primary" onclick="eNav('record')">+ Record Service</button></div>
+          <div class="stats" id="e-stats"></div>
+          <div class="two-col">
+            <div class="block"><div class="block-title">⚡ My Active Jobs</div><div id="e-today-list"></div></div>
+            <div class="block"><div class="block-title">📈 Recent Activity</div><div id="e-activity"></div></div>
+          </div>
+        </div>
+        <!-- ASSIGNED -->
+        <div id="ep-assigned" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Assigned Services</div><div class="ph-sub">Devices assigned to you</div></div>
+            <div class="ph-right">
+              <select class="fsel" onchange="filterEAssigned(this.value)" id="e-assign-filter"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option></select>
+            </div>
+          </div>
+          <div class="cards" id="e-assigned-cards"></div>
+        </div>
+        <!-- RECORD SERVICE -->
+        <div id="ep-record" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Record New Service</div><div class="ph-sub">Walk-in or phone intake</div></div></div>
+          <div class="block"><div class="block-title">👤 Customer Information</div>
+            <div class="fr">
+              <div class="fg"><label>Customer Name *</label><input type="text" id="er-name" placeholder="Full name"></div>
+              <div class="fg"><label>Phone *</label><input type="tel" id="er-phone" placeholder="+971 50 000 0000"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Email</label><input type="email" id="er-email" placeholder="customer@email.com"></div>
+              <div class="fg"><label>Emirates ID / Passport</label><input type="text" id="er-eid" placeholder="Optional — for warranty" class="mono"></div>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">📱 Device Details</div>
+            <div class="fr">
+              <div class="fg"><label>Device Type *</label><select id="er-type"><option value="">Select…</option><option>Smartphone</option><option>Laptop</option><option>Tablet</option><option>Desktop PC</option><option>Smartwatch</option><option>Gaming Console</option><option>Printer</option><option>TV / Monitor</option><option>Other</option></select></div>
+              <div class="fg"><label>Brand *</label><select id="er-brand"><option value="">Select…</option><option>Apple</option><option>Samsung</option><option>Dell</option><option>HP</option><option>Lenovo</option><option>Sony</option><option>LG</option><option>Huawei</option><option>Xiaomi</option><option>Other</option></select></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Model *</label><input type="text" id="er-model" placeholder="e.g. MacBook Air M3"></div>
+              <div class="fg"><label>Serial Number</label><input type="text" id="er-serial" class="mono" placeholder="Scan or type"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>IMEI (phones)</label><input type="text" id="er-imei" class="mono" placeholder="15-digit IMEI"></div>
+              <div class="fg"><label>Color / Config</label><input type="text" id="er-color" placeholder="Space Gray, 256GB"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Warranty</label><select id="er-warranty"><option>Not sure</option><option>Under warranty</option><option>Expired</option><option>No warranty</option></select></div>
+              <div class="fg"><label>Purchase Date</label><input type="month" id="er-purchase"></div>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">🔧 Issue & Diagnosis</div>
+            <div class="fr">
+              <div class="fg"><label>Issue Category *</label><select id="er-issue"><option value="">Select…</option><option>Screen / Display</option><option>Battery</option><option>Charging / Power</option><option>Speaker / Microphone</option><option>Camera</option><option>Keyboard / Trackpad</option><option>Software / OS</option><option>Connectivity</option><option>Physical Damage</option><option>Water Damage</option><option>Other</option></select></div>
+              <div class="fg"><label>Priority *</label><select id="er-priority"><option value="Low">🟢 Low</option><option value="Medium" selected>🟡 Medium</option><option value="High">🔴 High</option></select></div>
+            </div>
+            <div class="fg"><label>Customer's Description *</label><textarea id="er-cust-issue" placeholder="What the customer reported…"></textarea></div>
+            <div class="fg"><label>Engineer Initial Diagnosis</label><textarea id="er-diagnosis" placeholder="Your visual inspection findings…"></textarea></div>
+            <div class="fg"><label>Device Condition on Receipt</label>
+              <div class="flex flex-wrap gap2 mt2" id="er-conditions">
+                <label class="plain text-sm"><input type="checkbox" class="er-cond"> Cracked screen</label>
+                <label class="plain text-sm"><input type="checkbox" class="er-cond"> Physical damage</label>
+                <label class="plain text-sm"><input type="checkbox" class="er-cond"> Water damage signs</label>
+                <label class="plain text-sm"><input type="checkbox" class="er-cond"> Missing parts</label>
+                <label class="plain text-sm"><input type="checkbox" class="er-cond"> Previously repaired</label>
+              </div>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">📦 Logistics & Assignment</div>
+            <div class="fr">
+              <div class="fg"><label>Accessories Received</label><input type="text" id="er-acc" placeholder="Charger, case, box…"></div>
+              <div class="fg"><label>Estimated Cost (AED)</label><input type="number" id="er-cost" placeholder="0.00" min="0"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Est. Completion Date</label><input type="date" id="er-eta"></div>
+              <div class="fg"><label>Assign To</label><select id="er-assign"></select></div>
+            </div>
+            <div class="fg mt2"><label class="plain text-sm"><input type="checkbox" id="er-sms" checked> Send SMS confirmation to customer</label></div>
+            <div class="fg"><label class="plain text-sm"><input type="checkbox" id="er-photo"> Device photographed (6 sides)</label></div>
+          </div>
+          <div class="flex gap2 justify-between">
+            <button class="btn btn-secondary" onclick="eNav('home')">Cancel</button>
+            <div class="flex gap2">
+              <button class="btn btn-secondary" onclick="toast('info','💾 Draft saved')">Save Draft</button>
+              <button class="btn btn-primary" onclick="submitEngService()">Create Service Record →</button>
+            </div>
+          </div>
+        </div>
+        <!-- ALL SERVICES -->
+        <div id="ep-all" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">All Services</div><div class="ph-sub">Full service log with intake, dispatch & last activity</div></div>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📊 Export CSV</button></div>
+          <div class="tbl-wrap">
+            <div class="tbl-bar"><div class="tbl-title">Service Log</div>
+              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search ID, device, customer…" oninput="filterETable(this.value)" id="e-srch"></div>
+              <select class="fsel" id="e-status-filter" onchange="filterETable(document.getElementById('e-srch').value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option></select>
+              <select class="fsel" id="e-pri-filter" onchange="filterETable(document.getElementById('e-srch').value)"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+            </div>
+            <table><thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Issue</th><th>Engineer</th><th>Intake</th><th>ETA</th><th>Dispatched</th><th>Last Activity</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="e-tbl-body"></tbody></table>
+          </div>
+        </div>
+        <!-- CHECKLIST -->
+        <div id="ep-checklist" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Device Intake Checklist</div><div class="ph-sub">Industry best practices — complete before every intake</div></div>
+            <button class="btn btn-secondary btn-sm" onclick="resetChecklist()">↺ Reset All</button></div>
+          <div class="two-col">
+            <div class="block"><div class="block-title">📋 Pre-Intake Verification</div><div id="cl-1"></div></div>
+            <div class="block"><div class="block-title">🔍 Physical Inspection</div><div id="cl-2"></div></div>
+            <div class="block"><div class="block-title">📝 Documentation</div><div id="cl-3"></div></div>
+            <div class="block"><div class="block-title">🚀 Best Practice Reminders</div><div id="cl-bp"></div></div>
+          </div>
+        </div>
+        <!-- REPORTS -->
+        <div id="ep-reports" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">My Performance</div><div class="ph-sub">Personal service metrics</div></div></div>
+          <div class="stats" id="e-report-stats"></div>
+          <div class="block"><div class="block-title">📈 Issues Handled</div><div id="e-report-chart"></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ADMIN PORTAL
+═══════════════════════════════════════════ -->
+<div class="view" id="view-admin">
+  <div class="auth-wrap" id="a-auth">
+    <div class="auth-box">
+      <div class="auth-head"><div class="auth-ico">⚙️</div><div class="auth-title">Admin Panel</div><div class="auth-sub">Restricted access — administrator credentials required</div></div>
+      <div class="alert alert-danger">🔐 Unauthorized access attempts are logged and reported.</div>
+      <div class="fg mt3"><label>Admin Email</label><div class="ico-wrap"><span class="ico">✉</span><input type="email" id="a-email" placeholder="admin@reparo.com"></div></div>
+      <div class="fg"><label>Password</label><div class="ico-wrap"><span class="ico">🔒</span><input type="password" id="a-pass" placeholder="Admin password"><span class="pw-eye" onclick="togglePw('a-pass',this)">👁</span></div></div>
+      <div class="fg"><label>2FA Code</label><div class="ico-wrap"><span class="ico">📲</span><input type="text" id="a-2fa" class="mono" placeholder="6-digit authenticator code" maxlength="6"></div>
+        <div class="hint">Demo 2FA code: <strong style="color:var(--accent)">123456</strong></div></div>
+      <button class="btn btn-primary btn-full mt3" onclick="doLogin('admin')">Access Admin Panel →</button>
+      <button class="btn btn-secondary btn-full mt2" onclick="demoLogin('admin')">🚀 Demo Admin Login</button>
+    </div>
+  </div>
+  <div class="hidden" id="a-dash">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sb-section"><div class="sb-lbl">Overview</div>
+          <div class="sb-item active" id="as-home" onclick="aNav('home')"><span class="si">📊</span> Dashboard</div>
+          <div class="sb-item" id="as-services" onclick="aNav('services')"><span class="si">🔧</span> All Services</div>
+          <div class="sb-item" id="as-analytics" onclick="aNav('analytics')"><span class="si">📈</span> Analytics</div>
+        </div>
+        <div class="sb-section"><div class="sb-lbl">Administration</div>
+          <div class="sb-item" id="as-users" onclick="aNav('users')"><span class="si">👥</span> User Management</div>
+          <div class="sb-item" id="as-engineers" onclick="aNav('engineers')"><span class="si">🔧</span> Engineers</div>
+          <div class="sb-item" id="as-content" onclick="aNav('content')"><span class="si">📝</span> Content</div>
+          <div class="sb-item" id="as-settings" onclick="aNav('settings')"><span class="si">⚙️</span> Settings</div>
+        </div>
+      </aside>
+      <main class="content">
+        <!-- ADMIN HOME -->
+        <div id="ap-home">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Admin Overview</div><div class="ph-sub">System-wide metrics and alerts</div></div>
+            <div class="ph-right">
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📊 Export All</button>
+              <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Add User</button>
+            </div>
+          </div>
+          <div class="stats" id="a-stats"></div>
+          <div class="two-col">
+            <div class="block"><div class="block-title">📊 Status Breakdown</div><div id="a-status-chart"></div></div>
+            <div class="block"><div class="block-title">🏆 Engineer Performance</div><div id="a-eng-perf"></div></div>
+          </div>
+          <div class="block"><div class="block-title">🚨 Overdue / High Priority Services</div><div id="a-overdue"></div></div>
+        </div>
+        <!-- ADMIN ALL SERVICES -->
+        <div id="ap-services" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">All Services</div><div class="ph-sub">Full admin control — edit, reassign, cancel</div></div>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📤 Export</button></div>
+          <div class="tbl-wrap">
+            <div class="tbl-bar"><div class="tbl-title">Master Service Log</div>
+              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search…" oninput="filterATable(this.value)" id="a-srch"></div>
+              <select class="fsel" id="a-status-filter" onchange="filterATable(document.getElementById('a-srch').value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option><option>Cancelled</option></select>
+              <select class="fsel" id="a-eng-filter" onchange="filterATable(document.getElementById('a-srch').value)"><option value="">All Engineers</option></select>
+            </div>
+            <table><thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Engineer</th><th>Intake</th><th>Dispatch</th><th>Last Activity</th><th>Priority</th><th>Status</th><th>Cost</th><th>Actions</th></tr></thead>
+            <tbody id="a-tbl-body"></tbody></table>
+          </div>
+        </div>
+        <!-- ANALYTICS -->
+        <div id="ap-analytics" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Analytics</div><div class="ph-sub">Service center performance insights</div></div></div>
+          <div class="stats" id="a-kpi-stats"></div>
+          <div class="two-col">
+            <div class="block"><div class="block-title">📱 Device Types</div><div id="a-dev-chart"></div></div>
+            <div class="block"><div class="block-title">🔧 Top Issues</div><div id="a-issue-chart"></div></div>
+          </div>
+          <div class="block"><div class="block-title">📈 Monthly Volume (Last 6 Months)</div><div id="a-monthly-chart"></div></div>
+          <div class="block"><div class="block-title">⏱ SLA Compliance by Engineer</div><div id="a-sla-chart"></div></div>
+        </div>
+        <!-- USER MANAGEMENT -->
+        <div id="ap-users" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">User Management</div><div class="ph-sub">Manage all portal accounts</div></div>
+            <button class="btn btn-primary" onclick="openAddUserModal()">+ Add User</button></div>
+          <div class="tbl-wrap">
+            <div class="tbl-bar"><div class="tbl-title">All Users</div>
+              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search users…" oninput="filterUTable(this.value)" id="u-srch"></div>
+              <select class="fsel" id="u-role-filter" onchange="filterUTable(document.getElementById('u-srch').value)"><option value="">All Roles</option><option>Admin</option><option>Engineer</option><option>Customer</option></select>
+              <select class="fsel" id="u-status-filter" onchange="filterUTable(document.getElementById('u-srch').value)"><option value="">All Status</option><option>Active</option><option>Inactive</option><option>On Leave</option></select>
+            </div>
+            <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Last Active</th><th>Status</th><th>Services</th><th>Actions</th></tr></thead>
+            <tbody id="u-tbl-body"></tbody></table>
+          </div>
+        </div>
+        <!-- ENGINEERS -->
+        <div id="ap-engineers" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Engineer Management</div><div class="ph-sub">Workload, performance and assignments</div></div>
+            <button class="btn btn-primary" onclick="toast('info','➕ Add engineer form loading…')">+ Add Engineer</button></div>
+          <div class="cards" id="a-eng-cards"></div>
+        </div>
+        <!-- CONTENT -->
+        <div id="ap-content" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Content Management</div><div class="ph-sub">Control what customers & engineers see</div></div></div>
+          <div class="block"><div class="block-title">📢 Announcements</div>
+            <div id="a-ann-list"></div>
+            <div class="fg mt3"><label>New Announcement</label><textarea id="a-ann-text" placeholder="Type announcement text…" rows="3"></textarea></div>
+            <div class="fr">
+              <div class="fg"><label>Type</label><select id="a-ann-type"><option value="info">ℹ️ Info</option><option value="success">✅ Success</option><option value="warning">⚠️ Warning</option><option value="danger">🚨 Alert</option></select></div>
+              <div class="fg"><label>Visible To</label><select id="a-ann-audience"><option>All users</option><option>Customers only</option><option>Engineers only</option></select></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAnnouncement()">Publish Announcement</button>
+          </div>
+          <div class="block"><div class="block-title">⚙️ Service Settings</div>
+            <div class="fr">
+              <div class="fg"><label>Working Hours</label><input type="text" id="s-hours" value="9:00 AM – 6:00 PM, Sat–Thu"></div>
+              <div class="fg"><label>Express Service Fee (AED)</label><input type="number" id="s-express" value="50"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Default SLA (days)</label><input type="number" id="s-sla" value="5"></div>
+              <div class="fg"><label>Max Jobs / Engineer</label><input type="number" id="s-maxjobs" value="8"></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
+          </div>
+          <div class="block"><div class="block-title">📋 Device Types</div>
+            <div class="flex gap2 flex-wrap" id="a-device-tags">
+              <span class="chip">Smartphone</span><span class="chip">Laptop</span><span class="chip">Tablet</span>
+              <span class="chip">Desktop PC</span><span class="chip">Smartwatch</span><span class="chip">Gaming Console</span>
+              <span class="chip">Printer</span><span class="chip">TV / Monitor</span>
+            </div>
+            <div class="flex gap2 mt3">
+              <input type="text" id="new-device-type" placeholder="New device type…" style="max-width:200px">
+              <button class="btn btn-secondary btn-sm" onclick="addDeviceType()">+ Add</button>
+            </div>
+          </div>
+        </div>
+        <!-- SETTINGS -->
+        <div id="ap-settings" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">System Settings</div><div class="ph-sub">Portal configuration and integrations</div></div></div>
+          <div class="block"><div class="block-title">🔔 Notifications</div>
+            <div id="notif-settings"></div>
+            <button class="btn btn-primary btn-sm mt3" onclick="saveNotifSettings()">Save</button>
+          </div>
+          <div class="block"><div class="block-title">🎨 Branding</div>
+            <div class="fr">
+              <div class="fg"><label>Portal Name</label><input type="text" id="b-name" value="Reparo"></div>
+              <div class="fg"><label>Support Phone</label><input type="text" id="b-phone" value="+971 4 000 0000"></div>
+            </div>
+            <div class="fg"><label>Support Email</label><input type="email" id="b-email" value="support@reparo.com"></div>
+            <div class="fg"><label>Tagline</label><input type="text" id="b-tagline" value="Intelligent Device Service Management"></div>
+            <button class="btn btn-primary btn-sm" onclick="saveBranding()">Save Branding</button>
+          </div>
+          <div class="block"><div class="block-title">🗄️ Data & Storage</div>
+            <div class="alert alert-info">Data is persisted in your browser's localStorage — it survives page refreshes and tab closes. Clearing your browser data will reset it.</div>
+            <div id="storage-info" style="font-size:13px;color:var(--text2);margin-bottom:14px"></div>
+            <div class="flex gap2">
+              <button class="btn btn-secondary btn-sm" onclick="showStorageInfo()">📊 Storage Usage</button>
+              <button class="btn btn-danger btn-sm" onclick="resetDB()">🗑 Reset All Data to Factory Defaults</button>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">🔐 Security</div>
+            <div id="sec-settings"></div>
+            <button class="btn btn-primary btn-sm mt3" onclick="toast('success','✅ Security settings saved')">Save</button>
+          </div>
+          <div class="block"><div class="block-title">📋 Audit Log</div><div id="a-audit-log"></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+<!-- Service Detail Modal -->
+<div class="overlay" id="modal-service">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-head"><div class="modal-title" id="m-svc-title">Service Detail</div><button class="modal-x" onclick="closeModal('modal-service')">✕</button></div>
+    <div id="m-svc-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-service')">Close</button>
+      <button class="btn btn-primary" onclick="saveServiceUpdate()">Save Update</button>
+    </div>
+  </div>
+</div>
+<!-- Add/Edit User Modal -->
+<div class="overlay" id="modal-user">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="m-user-title">Add User</div><button class="modal-x" onclick="closeModal('modal-user')">✕</button></div>
+    <div class="fr">
+      <div class="fg"><label>First Name *</label><input type="text" id="mu-first" placeholder="First"></div>
+      <div class="fg"><label>Last Name *</label><input type="text" id="mu-last" placeholder="Last"></div>
+    </div>
+    <div class="fg"><label>Email *</label><input type="email" id="mu-email" placeholder="user@reparo.com"></div>
+    <div class="fg"><label>Phone</label><input type="text" id="mu-phone" placeholder="+971 50 000 0000"></div>
+    <div class="fr">
+      <div class="fg"><label>Role</label><select id="mu-role"><option>Customer</option><option>Engineer</option><option>Admin</option></select></div>
+      <div class="fg"><label>Status</label><select id="mu-status"><option>Active</option><option>Inactive</option><option>On Leave</option></select></div>
+    </div>
+    <div class="fg"><label>Temp Password</label><input type="text" id="mu-pass" placeholder="Leave blank to auto-generate"></div>
+    <div class="fg"><label class="plain text-sm"><input type="checkbox" id="mu-welcome" checked> Send welcome email with credentials</label></div>
+    <input type="hidden" id="mu-edit-id" value="">
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-user')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveUser()">Save User →</button>
+    </div>
+  </div>
+</div>
+<!-- Profile Modal -->
+<div class="overlay" id="modal-profile">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">My Profile</div><button class="modal-x" onclick="closeModal('modal-profile')">✕</button></div>
+    <div id="m-profile-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modal-profile')">Close</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════════════════════════
+// DATABASE
+// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// API CLIENT
+// ══════════════════════════════════════════════════
+const API_BASE = '/api';
+let _token = localStorage.getItem('rp_token') || null;
+
+function setToken(t){ _token = t; if(t) localStorage.setItem('rp_token',t); else localStorage.removeItem('rp_token'); }
+
+async function api(method, path, body){
+  const opts = { method, headers: { 'Content-Type':'application/json' } };
+  if(_token) opts.headers['Authorization'] = 'Bearer '+_token;
+  if(body)   opts.body = JSON.stringify(body);
+  const r = await fetch(API_BASE+path, opts);
+  const data = await r.json();
+  if(!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+const GET    = (path)        => api('GET',    path);
+const POST   = (path, body)  => api('POST',   path, body);
+const PATCH  = (path, body)  => api('PATCH',  path, body);
+const PUT    = (path, body)  => api('PUT',    path, body);
+const DEL    = (path)        => api('DELETE', path);
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let APP = { portal:'customer', user:null, editServiceId:null };
+const ENGINEERS = ['Eng. Mohammed Al-Farsi','Eng. Sara Ibrahim','Eng. Khalid Hassan','Eng. Rania Nasser'];
+const STATUS_MAP = {
+  'Received':'received','Diagnosed':'diagnosed','In Progress':'inprogress',
+  'Awaiting Parts':'awaitingparts','Ready':'ready','Dispatched':'dispatched','Cancelled':'cancelled'
+};
+
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+function fmtD(d){if(!d||d==='—')return'—';return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtDT(d){if(!d||d==='—')return'—';let dt=new Date(d);return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+function uid(){return 'u'+Date.now()+Math.random().toString(36).slice(2,6);}
+function loading(id,msg='Loading…'){const el=document.getElementById(id);if(el)el.innerHTML=`<div style="text-align:center;padding:32px;color:var(--text3);font-size:13px">${msg}</div>`;}
+function err(id,msg){const el=document.getElementById(id);if(el)el.innerHTML=`<div class="alert alert-danger">${msg}</div>`;}
+
+function toast(type,msg){
+  const t=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className='toast toast-'+type;
+  const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+  el.textContent=(icons[type]||'')+' '+msg;
+  t.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='all .3s';setTimeout(()=>el.remove(),300);},3200);
+}
+
+function statusBdg(s){const k=STATUS_MAP[s]||'received';return `<span class="bdg bdg-${k}">${s}</span>`;}
+function priBdg(p){const c=p==='High'?'pri-high':p==='Medium'?'pri-medium':'pri-low';const i=p==='High'?'▲':p==='Medium'?'●':'▼';return `<span class="pri ${c}">${i} ${p}</span>`;}
+
+// ══════════════════════════════════════════════════
+// PORTAL SWITCHING
+// ══════════════════════════════════════════════════
+function switchPortal(p){
+  APP.portal=p;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+p).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',['customer','engineer','admin'][i]===p));
+  updateNav();
+}
+
+function updateNav(){
+  const nu=document.getElementById('navUser');
+  if(APP.user){
+    nu.classList.remove('hidden');
+    const av=document.getElementById('navAvatar');
+    av.textContent=APP.user.name[0];
+    av.style.background=APP.portal==='engineer'?'var(--blue)':APP.portal==='admin'?'var(--purple)':'var(--accent)';
+    av.style.color='#000';
+    document.getElementById('navUname').textContent=APP.user.name;
+  } else { nu.classList.add('hidden'); }
+}
+
+function doLogout(){
+  setToken(null); APP.user=null;
+  const p=APP.portal;
+  const auths={customer:'c-auth',engineer:'e-auth',admin:'a-auth'};
+  const dashs={customer:'c-dash',engineer:'e-dash',admin:'a-dash'};
+  document.getElementById(auths[p]).classList.remove('hidden');
+  document.getElementById(dashs[p]).classList.add('hidden');
+  if(p==='customer') document.getElementById('c-public-track').classList.add('hidden');
+  updateNav();
+  toast('info','👋 Signed out successfully');
+}
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+function cAuthTab(t){
+  document.getElementById('c-login-form').classList.toggle('hidden',t!=='login');
+  document.getElementById('c-reg-form').classList.toggle('hidden',t!=='register');
+  document.getElementById('c-login-tab').classList.toggle('active',t==='login');
+  document.getElementById('c-reg-tab').classList.toggle('active',t==='register');
+}
+function togglePw(id,btn){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
+function pwStrength(v){
+  let s=0;if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const cols=['','var(--red)','var(--orange)','var(--accent)','var(--green)'];
+  const lbls=['','Weak','Fair','Good','Strong 🔒'];
+  const f=document.getElementById('pw-fill');
+  f.style.width=(s/4*100)+'%';f.style.background=cols[s]||'';
+  const l=document.getElementById('pw-lbl');
+  l.textContent=v.length?lbls[s]:'Enter a password';
+  l.style.color=cols[s]||'var(--text3)';
+}
+
+async function demoLogin(role){
+  const creds={
+    customer:{email:'demo@reparo.com',    password:'Demo1234!'},
+    engineer:{email:'m.alfarsi@reparo.com',password:'Eng1234!'},
+    admin:   {email:'admin@reparo.com',   password:'Admin1234!'}
+  };
+  await performLogin(creds[role].email, creds[role].password, role);
+}
+
+async function doLogin(portal){
+  let email, password;
+  if(portal==='customer'){ email=document.getElementById('c-email').value; password=document.getElementById('c-pass').value; }
+  else if(portal==='engineer'){ email=document.getElementById('e-user').value; password=document.getElementById('e-pass').value; }
+  else { email=document.getElementById('a-email').value; password=document.getElementById('a-pass').value;
+    const code=document.getElementById('a-2fa').value;
+    if(code&&code!=='123456'){toast('error','Invalid 2FA code (demo: 123456)');return;}
+  }
+  if(!email||!password){toast('error','Please enter credentials');return;}
+  await performLogin(email, password, portal);
+}
+
+async function performLogin(email, password, expectedPortal){
+  try{
+    const data = await POST('/auth/login', {email, password});
+    const roleMap={Customer:'customer', Engineer:'engineer', Admin:'admin'};
+    const actualPortal = roleMap[data.user.role];
+
+    // If logging into wrong portal, switch automatically
+    if(actualPortal !== expectedPortal){
+      switchPortal(actualPortal);
+      toast('info',`Switched to ${data.user.role} portal`);
+    }
+
+    setToken(data.token);
+    APP.user = { ...data.user, name: `${data.user.firstName} ${data.user.lastName}` };
+    APP.portal = actualPortal;
+
+    if(actualPortal==='customer')  openCustDash();
+    if(actualPortal==='engineer')  openEngDash();
+    if(actualPortal==='admin')     openAdminDash();
+    updateNav();
+  } catch(e){ toast('error', e.message); }
+}
+
+async function doRegister(){
+  const firstName=document.getElementById('r-first').value.trim();
+  const lastName =document.getElementById('r-last').value.trim();
+  const email    =document.getElementById('r-email').value.trim();
+  const phone    =document.getElementById('r-phone').value.trim();
+  const password =document.getElementById('r-pass').value;
+  const password2=document.getElementById('r-pass2').value;
+  const agree    =document.getElementById('r-agree').checked;
+  if(!firstName||!lastName||!email||!phone||!password){toast('error','Please fill in all required fields');return;}
+  if(password!==password2){toast('error','Passwords do not match');return;}
+  if(!agree){toast('error','Please accept the Terms of Service');return;}
+  try{
+    const data = await POST('/auth/register',{firstName,lastName,email,phone,password});
+    setToken(data.token);
+    APP.user = {...data.user, name:`${data.user.firstName} ${data.user.lastName}`};
+    openCustDash(); updateNav();
+    toast('success','🎉 Account created! Welcome, '+firstName+'!');
+  } catch(e){ toast('error',e.message); }
+}
+
+// ══════════════════════════════════════════════════
+// CUSTOMER PORTAL
+// ══════════════════════════════════════════════════
+function openCustDash(){
+  document.getElementById('c-auth').classList.add('hidden');
+  document.getElementById('c-dash').classList.remove('hidden');
+  document.getElementById('c-public-track').classList.add('hidden');
+  document.getElementById('c-greeting').textContent='Welcome back, '+APP.user.firstName+'! 👋';
+  cNav('home');
+}
+
+function cNav(sec){
+  ['home','new','requests','track'].forEach(s=>{
+    document.getElementById('cp-'+s).classList.toggle('hidden',s!==sec);
+    document.getElementById('cs-'+s).classList.toggle('active',s===sec);
+  });
+  if(sec==='home')    { loadCHome(); }
+  if(sec==='requests'){ loadCTable(); }
+  if(sec==='track')   { document.getElementById('c-track-result').innerHTML=''; }
+}
+
+async function loadCHome(){
+  try{
+    const [services, stats, anns] = await Promise.all([
+      GET('/services?limit=5'),
+      GET('/services/stats/overview'),
+      GET('/announcements')
+    ]);
+    renderCStats(stats);
+    renderCRecent(services);
+    renderAnnouncements('c-announcements', anns);
+  } catch(e){ toast('error','Failed to load dashboard: '+e.message); }
+}
+
+function renderCStats(s){
+  document.getElementById('c-stats').innerHTML=`
+    <div class="stat c-blue"><div class="stat-val">${s.total}</div><div class="stat-lbl">Total Requests</div><div class="stat-ico">📋</div></div>
+    <div class="stat c-amber"><div class="stat-val">${s.active}</div><div class="stat-lbl">Active</div><div class="stat-ico">⚡</div></div>
+    <div class="stat c-green"><div class="stat-val">${s.ready}</div><div class="stat-lbl">Ready for Pickup</div><div class="stat-ico">✅</div></div>
+    <div class="stat c-purple"><div class="stat-val">${s.dispatched}</div><div class="stat-lbl">Completed</div><div class="stat-ico">🏁</div></div>`;
+}
+
+function renderCRecent(services){
+  const el=document.getElementById('c-recent-list');
+  if(!services.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0">No requests yet.<br><br><button class="btn btn-primary btn-sm" onclick="cNav(\'new\')">Submit your first →</button></div>';return;}
+  el.innerHTML=services.map(s=>`<div class="af-item">
+    <div class="af-ico" style="background:var(--bg4)">📱</div>
+    <div class="af-body">
+      <div class="af-text">${s.brand} ${s.model} — ${s.issue_cat}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:4px">${statusBdg(s.status)} ${priBdg(s.priority)}<span class="mono dim" style="font-size:10px">${s.id}</span></div>
+    </div>
+    <div style="text-align:right"><div class="af-time">${fmtD(s.created_at)}</div>
+      <button class="btn btn-ghost btn-xs mt1" onclick="showServiceModal('${s.id}')">View →</button></div>
+  </div>`).join('');
+}
+
+function renderAnnouncements(targetId, anns){
+  const el=document.getElementById(targetId); if(!el) return;
+  const active=(anns||[]).filter(a=>a.active);
+  el.innerHTML=active.length?active.map(a=>`<div class="alert alert-${a.type}" style="justify-content:space-between">
+    <span>${a.text}</span><span style="font-size:10px;opacity:0.7;flex-shrink:0">${fmtD(a.created_at)}</span>
+  </div>`).join(''):'<div class="dim text-sm">No announcements.</div>';
+}
+
+async function loadCTable(search='', status=''){
+  loading('c-tbl-body','Loading services…');
+  try{
+    let qs=''; if(search) qs+=`&search=${encodeURIComponent(search)}`; if(status) qs+=`&status=${encodeURIComponent(status)}`;
+    const services = await GET('/services?'+qs);
+    document.getElementById('c-tbl-body').innerHTML=services.length?services.map(cRow).join(''):`<tr><td colspan="8" class="empty-row">No requests found. <button class="btn btn-primary btn-sm" onclick="cNav('new')">Submit one →</button></td></tr>`;
+  } catch(e){ err('c-tbl-body',e.message); }
+}
+function cRow(s){return `<tr>
+  <td><span class="mono" style="color:var(--accent);font-size:12px">${s.id}</span></td>
+  <td><div class="bold text-sm">${s.brand} ${s.model}</div><div class="dim" style="font-size:11px">${s.device_type}</div></td>
+  <td class="text-sm" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.issue_cat}</td>
+  <td>${priBdg(s.priority)}</td>
+  <td><span class="mono" style="font-size:11px">${fmtD(s.created_at)}</span></td>
+  <td><span class="mono" style="font-size:11px">${fmtDT(s.last_activity)}</span></td>
+  <td>${statusBdg(s.status)}</td>
+  <td><button class="btn btn-ghost btn-xs" onclick="showServiceModal('${s.id}')">View</button></td>
+</tr>`;}
+function filterCTable(v){ loadCTable(v, document.querySelector('#cp-requests .fsel')?.value||''); }
+function filterCStatus(v){ loadCTable(document.querySelector('#cp-requests .srch input')?.value||'', v); }
+
+async function submitCustRequest(){
+  const dt=document.getElementById('n-type').value, br=document.getElementById('n-brand').value;
+  const mo=document.getElementById('n-model').value.trim(), it=document.getElementById('n-issue').value;
+  const desc=document.getElementById('n-desc').value.trim(), consent=document.getElementById('n-consent').checked;
+  if(!dt||!br||!mo||!it||!desc){toast('error','Please fill in all required fields (*)');return;}
+  if(!consent){toast('error','Please confirm consent before submitting');return;}
+  try{
+    const svc = await POST('/services',{
+      custName:APP.user.name, custPhone:APP.user.phone||'', custEmail:APP.user.email,
+      deviceType:dt, brand:br, model:mo, serial:document.getElementById('n-serial').value,
+      issueCat:it, issueDesc:desc, priority:document.getElementById('n-priority').value,
+      contactPref:document.getElementById('n-contact').value,
+      accessories:document.getElementById('n-acc').value,
+      warranty:document.getElementById('n-warranty').value, source:'online'
+    });
+    toast('success','✅ Request '+svc.id+' submitted! We will contact you via '+document.getElementById('n-contact').value);
+    ['n-type','n-brand','n-issue'].forEach(id=>document.getElementById(id).value='');
+    ['n-model','n-serial','n-desc','n-acc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('n-consent').checked=false;
+    cNav('requests');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function doTrack(){ renderTrack(document.getElementById('c-track-id').value.trim(),'c-track-result'); }
+function showTrackPublic(){ document.getElementById('c-auth').classList.add('hidden'); document.getElementById('c-public-track').classList.remove('hidden'); }
+function backToLogin(){ document.getElementById('c-public-track').classList.add('hidden'); document.getElementById('c-auth').classList.remove('hidden'); }
+async function doPublicTrack(){ renderTrack(document.getElementById('pub-track-id').value.trim(),'pub-track-result'); }
+
+async function renderTrack(id, targetId){
+  const el=document.getElementById(targetId);
+  if(!id){el.innerHTML='<div class="alert alert-warning">Please enter a request ID</div>';return;}
+  el.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3)">🔍 Looking up '+id+'…</div>';
+  try{
+    const s = await GET('/services/track/'+id);
+    const steps=['Received','Diagnosed','In Progress','Ready','Dispatched'];
+    const ci=steps.indexOf(s.status);
+    el.innerHTML=`<div class="track-result">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="tr-id">${s.id}</div> ${statusBdg(s.status)} ${priBdg(s.priority)}
+      </div>
+      <div class="stepper">${steps.map((st,i)=>`<div class="step ${i<ci?'done':i===ci?'active':''}">
+        <div class="step-line"></div><div class="step-dot">${i<ci?'✓':i+1}</div><div class="step-lbl">${st}</div>
+      </div>`).join('')}</div>
+      <div class="tr-grid">
+        <div class="tr-field"><div class="tr-fl">Device</div><div class="tr-fv">${s.brand} ${s.model}</div></div>
+        <div class="tr-field"><div class="tr-fl">Issue</div><div class="tr-fv">${s.issue_cat}</div></div>
+        <div class="tr-field"><div class="tr-fl">Intake Date</div><div class="tr-fv mono">${fmtD(s.created_at)}</div></div>
+        <div class="tr-field"><div class="tr-fl">Est. Completion</div><div class="tr-fv mono">${fmtD(s.eta)}</div></div>
+        <div class="tr-field"><div class="tr-fl">Engineer</div><div class="tr-fv">${s.engineer_name||'Pending'}</div></div>
+        <div class="tr-field"><div class="tr-fl">Last Update</div><div class="tr-fv mono">${fmtDT(s.last_activity)}</div></div>
+        ${s.cost?`<div class="tr-field"><div class="tr-fl">Estimated Cost</div><div class="tr-fv mono">AED ${s.cost}</div></div>`:''}
+        ${s.notes?`<div class="tr-field" style="grid-column:1/-1"><div class="tr-fl">Latest Note</div><div class="tr-fv">${s.notes}</div></div>`:''}
+      </div>
+      ${s.status==='Ready'?'<div class="alert alert-success">🎉 Your device is ready for pickup!</div>':''}
+      ${s.status==='Dispatched'?'<div class="alert alert-info">📦 Device dispatched. Thank you!</div>':''}
+      ${s.status==='Awaiting Parts'?'<div class="alert alert-warning">⏳ Waiting for parts to arrive.</div>':''}
+      <div class="tl mt3">${(s.activities||[]).map(a=>`<div class="tl-item done">
+        <div class="tl-date">${fmtDT(a.created_at)}</div>
+        <div class="tl-text">${a.text}</div>
+        <div class="tl-sub">By ${a.by_user||'System'}</div>
+      </div>`).join('')}</div>
+    </div>`;
+  } catch(e){ el.innerHTML=`<div class="alert alert-danger">❌ ${e.message}</div>`; }
+}
+
+// ══════════════════════════════════════════════════
+// ENGINEER PORTAL
+// ══════════════════════════════════════════════════
+async function openEngDash(){
+  document.getElementById('e-auth').classList.add('hidden');
+  document.getElementById('e-dash').classList.remove('hidden');
+  document.getElementById('e-greeting').textContent='Good morning, '+APP.user.firstName+'! 🔧';
+  document.getElementById('e-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // populate engineer dropdown
+  try{
+    const engineers = await GET('/users?role=Engineer');
+    const sel=document.getElementById('er-assign');
+    sel.innerHTML=engineers.map(e=>`<option value="${e.id}" data-name="Eng. ${e.first_name} ${e.last_name}" ${e.id===APP.user.id?'selected':''}>${e.first_name} ${e.last_name}</option>`).join('');
+  } catch(e){}
+  eNav('home');
+}
+
+function eNav(sec){
+  ['home','assigned','record','all','checklist','reports'].forEach(s=>{
+    const ep=document.getElementById('ep-'+s); if(ep) ep.classList.toggle('hidden',s!==sec);
+    const es=document.getElementById('es-'+s); if(es) es.classList.toggle('active',s===sec);
+  });
+  if(sec==='home')     loadEHome();
+  if(sec==='assigned') loadEAssigned();
+  if(sec==='all')      loadETable();
+  if(sec==='checklist')renderChecklist();
+  if(sec==='reports')  loadEReports();
+}
+
+async function loadEHome(){
+  try{
+    const [stats, services] = await Promise.all([
+      GET('/services/stats/overview'),
+      GET('/services?limit=100')
+    ]);
+    renderEStats(stats, services);
+    renderEToday(services.filter(s=>s.engineer_id===APP.user.id && !['Dispatched','Cancelled'].includes(s.status)).slice(0,5));
+    renderEActivity(services.slice(0,8));
+  } catch(e){ toast('error','Failed to load engineer dashboard'); }
+}
+
+function renderEStats(stats, all){
+  const mine=all.filter(s=>s.engineer_id===APP.user.id);
+  const active=mine.filter(s=>!['Dispatched','Cancelled'].includes(s.status));
+  const high=active.filter(s=>s.priority==='High');
+  const done=mine.filter(s=>s.status==='Dispatched');
+  document.getElementById('e-stats').innerHTML=`
+    <div class="stat c-blue"><div class="stat-val">${mine.length}</div><div class="stat-lbl">Total Assigned</div><div class="stat-ico">📌</div></div>
+    <div class="stat c-amber"><div class="stat-val">${active.length}</div><div class="stat-lbl">Active Jobs</div><div class="stat-ico">⚡</div></div>
+    <div class="stat c-red"><div class="stat-val">${high.length}</div><div class="stat-lbl">High Priority</div><div class="stat-ico">🚨</div></div>
+    <div class="stat c-green"><div class="stat-val">${done.length}</div><div class="stat-lbl">Completed</div><div class="stat-ico">✅</div></div>`;
+  document.getElementById('e-count').textContent=active.length;
+}
+function renderEToday(services){
+  const el=document.getElementById('e-today-list');
+  el.innerHTML=services.length?services.map(s=>`<div class="af-item">
+    <div class="af-ico" style="background:var(--bg4)">📱</div>
+    <div class="af-body"><div class="af-text bold">${s.brand} ${s.model}</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:4px">${statusBdg(s.status)} ${priBdg(s.priority)}</div></div>
+    <div style="text-align:right"><span class="mono dim" style="font-size:10px">${s.id}</span>
+      <br><button class="btn btn-ghost btn-xs mt1" onclick="showServiceModal('${s.id}')">→</button></div>
+  </div>`).join(''):'<div class="dim text-sm" style="padding:16px 0">No active jobs right now.</div>';
+}
+function renderEActivity(services){
+  document.getElementById('e-activity').innerHTML=services.map(s=>`<div class="af-item">
+    <div class="af-ico" style="background:var(--bg4)">🔔</div>
+    <div class="af-body"><div class="af-text">${s.id} → <strong>${s.status}</strong></div>
+      <div class="af-time">${fmtDT(s.last_activity)}</div></div>
+  </div>`).join('');
+}
+
+async function loadEAssigned(){
+  loading('e-assigned-cards');
+  try{
+    const filter=document.getElementById('e-assign-filter').value;
+    let qs=`&engineer_id=${APP.user.id}`; if(filter) qs+=`&status=${filter}`;
+    const services = await GET('/services?'+qs);
+    const active=services.filter(s=>!['Dispatched','Cancelled'].includes(s.status));
+    const el=document.getElementById('e-assigned-cards');
+    el.innerHTML=active.length?active.map(engCard).join(''):'<div class="empty-row">No active services assigned to you.</div>';
+  } catch(e){ err('e-assigned-cards',e.message); }
+}
+function filterEAssigned(){ loadEAssigned(); }
+
+function engCard(s){
+  const overdue=s.eta&&new Date(s.eta)<new Date()&&!['Dispatched','Cancelled'].includes(s.status);
+  return `<div class="card" style="${overdue?'border-color:rgba(239,68,68,0.4)':''}">
+    <div class="card-head">
+      <div><div class="card-id">${s.id}${overdue?' <span style="color:var(--red);font-size:10px">⚠ OVERDUE</span>':''}</div>
+        <div class="card-title">${s.brand} ${s.model}</div></div>${statusBdg(s.status)}
+    </div>
+    <div class="card-sub">${s.issue_cat}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">${priBdg(s.priority)}<span class="dim text-xs">👤 ${s.cust_name}</span></div>
+    <div class="card-meta">
+      <div class="cmi"><strong>${fmtD(s.created_at)}</strong>Intake</div>
+      <div class="cmi"><strong class="${overdue?'red-txt':''}">${fmtD(s.eta)}</strong>ETA</div>
+      <div class="cmi"><strong>AED ${s.cost||'TBD'}</strong>Cost</div>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-secondary btn-sm" onclick="showServiceModal('${s.id}')">View Details</button>
+      <button class="btn btn-primary btn-sm" onclick="showServiceModal('${s.id}')">Update Status ▼</button>
+    </div>
+  </div>`;
+}
+
+async function loadETable(){
+  loading('e-tbl-body','Loading services…');
+  const v=document.getElementById('e-srch').value;
+  const sf=document.getElementById('e-status-filter').value;
+  const pf=document.getElementById('e-pri-filter').value;
+  try{
+    let qs=''; if(v) qs+=`&search=${encodeURIComponent(v)}`; if(sf) qs+=`&status=${sf}`; if(pf) qs+=`&priority=${pf}`;
+    const services = await GET('/services?'+qs);
+    document.getElementById('e-tbl-body').innerHTML=services.length?services.map(eRow).join(''):`<tr><td colspan="12" class="empty-row">No results.</td></tr>`;
+  } catch(e){ err('e-tbl-body',e.message); }
+}
+function filterETable(){ loadETable(); }
+
+function eRow(s){
+  const overdue=s.eta&&new Date(s.eta)<new Date()&&!['Dispatched','Cancelled'].includes(s.status);
+  return `<tr>
+    <td><span class="mono" style="color:var(--accent);font-size:11px">${s.id}</span></td>
+    <td><div class="bold text-sm">${s.cust_name}</div><div class="dim" style="font-size:10px">${s.cust_phone}</div></td>
+    <td><div class="text-sm bold">${s.brand} ${s.model}</div><div class="dim" style="font-size:10px">${s.device_type}</div></td>
+    <td class="text-sm" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.issue_cat}</td>
+    <td class="text-sm">${(s.engineer_name||'').replace('Eng. ','')}</td>
+    <td><span class="mono" style="font-size:10px">${fmtD(s.created_at)}</span></td>
+    <td><span class="mono ${overdue?'red-txt':''}" style="font-size:10px">${fmtD(s.eta)}</span></td>
+    <td><span class="mono" style="font-size:10px">${fmtD(s.dispatch_at)}</span></td>
+    <td><span class="mono" style="font-size:10px">${fmtDT(s.last_activity)}</span></td>
+    <td>${priBdg(s.priority)}</td><td>${statusBdg(s.status)}</td>
+    <td><div class="flex gap1">
+      <button class="btn btn-ghost btn-xs" onclick="showServiceModal('${s.id}')">View</button>
+      <button class="btn btn-secondary btn-xs" onclick="showServiceModal('${s.id}')">Update</button>
+    </div></td>
+  </tr>`;
+}
+
+async function submitEngService(){
+  const name=document.getElementById('er-name').value.trim(), phone=document.getElementById('er-phone').value.trim();
+  const dt=document.getElementById('er-type').value, br=document.getElementById('er-brand').value;
+  const mo=document.getElementById('er-model').value.trim(), it=document.getElementById('er-issue').value;
+  const desc=document.getElementById('er-cust-issue').value.trim();
+  if(!name||!phone||!dt||!br||!mo||!it||!desc){toast('error','Please fill all required (*) fields');return;}
+  const sel=document.getElementById('er-assign');
+  const engId=sel.value; const engName=sel.options[sel.selectedIndex].getAttribute('data-name');
+  try{
+    const svc = await POST('/services',{
+      custName:name, custPhone:phone, custEmail:document.getElementById('er-email').value,
+      deviceType:dt, brand:br, model:mo, serial:document.getElementById('er-serial').value,
+      imei:document.getElementById('er-imei').value, color:document.getElementById('er-color').value,
+      issueCat:it, issueDesc:desc, diagnosis:document.getElementById('er-diagnosis').value,
+      priority:document.getElementById('er-priority').value,
+      engineerId:engId, engineerName:engName||'',
+      cost:parseFloat(document.getElementById('er-cost').value)||0,
+      accessories:document.getElementById('er-acc').value,
+      warranty:document.getElementById('er-warranty').value,
+      eta:document.getElementById('er-eta').value,
+      conditions:Array.from(document.querySelectorAll('.er-cond')).filter(c=>c.checked).map(c=>c.parentElement.textContent.trim()),
+      source:'walk-in'
+    });
+    if(document.getElementById('er-sms').checked) toast('info','📱 SMS sent to '+phone);
+    toast('success','✅ Service '+svc.id+' created!');
+    ['er-name','er-phone','er-email','er-eid','er-model','er-serial','er-imei','er-color','er-cust-issue','er-diagnosis','er-acc','er-cost'].forEach(id=>document.getElementById(id).value='');
+    document.querySelectorAll('.er-cond').forEach(c=>c.checked=false);
+    eNav('all');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function loadEReports(){
+  try{
+    const all = await GET('/services');
+    const mine=all.filter(s=>s.engineer_id===APP.user.id);
+    const done=mine.filter(s=>s.status==='Dispatched');
+    document.getElementById('e-report-stats').innerHTML=`
+      <div class="stat c-blue"><div class="stat-val">${mine.length}</div><div class="stat-lbl">Total Assigned</div></div>
+      <div class="stat c-green"><div class="stat-val">${done.length}</div><div class="stat-lbl">Completed</div></div>
+      <div class="stat c-amber"><div class="stat-val">${mine.length?Math.round(done.length/mine.length*100):0}%</div><div class="stat-lbl">Completion Rate</div></div>`;
+    const issues={};
+    mine.forEach(s=>{issues[s.issue_cat]=(issues[s.issue_cat]||0)+1;});
+    const max=Math.max(...Object.values(issues),1);
+    document.getElementById('e-report-chart').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
+      ${Object.entries(issues).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="pbar-row">
+        <div class="pbar-label">${k}</div>
+        <div class="pbar-track"><div class="pbar-fill" style="width:${v/max*100}%;background:var(--accent)"></div></div>
+        <div class="pbar-val" style="color:var(--accent)">${v}</div></div>`).join('')}
+    </div>`;
+  } catch(e){}
+}
+
+function renderChecklist(){
+  const cls1=['Verify customer name and phone number','Confirm customer is device owner or authorized rep','Check warranty status via manufacturer portal','Get verbal consent for diagnosis and potential repair','Discuss estimated cost range upfront','Confirm preferred contact method for updates'];
+  const cls2=['Photograph device from all 6 sides','Document all cracks, scratches, and physical damage','Check for water damage indicator strips','Test power-on and basic functions','Note any missing buttons, ports, or covers','Check for signs of prior repair or tampering','Record all accessories and components received'];
+  const cls3=['Assign unique service ID and label device','Print/email intake receipt to customer','Record estimated completion date','Log full condition details in system','Set follow-up reminder if silent after 48hr','Send SMS confirmation to customer'];
+  const bp=[
+    {i:'🔒',t:'Always back up customer data before any repair (get written consent first)'},
+    {i:'📷',t:'Photo documentation is mandatory — it legally protects both parties'},
+    {i:'📱',t:'Send proactive status updates — never make customers ask for updates'},
+    {i:'⚡',t:'High-priority jobs must be acknowledged and assessed within 30 minutes'},
+    {i:'💬',t:'If additional cost is discovered, stop work and get approval FIRST'},
+    {i:'🏷️',t:'Label every removed component — use numbered bags for disassembly'},
+    {i:'🧪',t:'Test ALL device functions after repair, not just the reported issue'},
+    {i:'📋',t:'Log every action taken — complete audit trail is required'},
+  ];
+  const mkCL=(items,id)=>{ document.getElementById(id).innerHTML=items.map(t=>`<div class="cl-item"><input type="checkbox" class="cl-cb" onchange="clProgress()"><span class="cl-text">${t}</span></div>`).join(''); };
+  mkCL(cls1,'cl-1'); mkCL(cls2,'cl-2'); mkCL(cls3,'cl-3');
+  document.getElementById('cl-bp').innerHTML=bp.map(b=>`<div class="bp-item"><span class="bp-ico">${b.i}</span><span class="bp-text">${b.t}</span></div>`).join('');
+}
+function resetChecklist(){document.querySelectorAll('.cl-cb').forEach(c=>c.checked=false);toast('info','↺ Checklist reset');}
+function clProgress(){const all=document.querySelectorAll('.cl-cb').length,done=document.querySelectorAll('.cl-cb:checked').length;if(done===all)toast('success','✅ Checklist complete!');}
+
+async function exportCSV(){
+  try{
+    const services = await GET('/services?limit=1000');
+    const rows=[['ID','Customer','Phone','Device','Issue','Engineer','Priority','Status','Intake','ETA','Dispatch','Cost']];
+    services.forEach(s=>rows.push([s.id,s.cust_name,s.cust_phone,s.brand+' '+s.model,s.issue_cat,s.engineer_name,s.priority,s.status,fmtD(s.created_at),fmtD(s.eta),fmtD(s.dispatch_at),s.cost]));
+    const csv=rows.map(r=>r.map(v=>'"'+(v||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download='reparo_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+    toast('success','📊 CSV exported!');
+  } catch(e){ toast('error',e.message); }
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN PORTAL
+// ══════════════════════════════════════════════════
+async function openAdminDash(){
+  document.getElementById('a-auth').classList.add('hidden');
+  document.getElementById('a-dash').classList.remove('hidden');
+  // populate engineer filter
+  try{
+    const engineers = await GET('/users?role=Engineer');
+    const ef=document.getElementById('a-eng-filter');
+    ef.innerHTML='<option value="">All Engineers</option>'+engineers.map(e=>`<option value="${e.id}">${e.first_name} ${e.last_name}</option>`).join('');
+  } catch(e){}
+  aNav('home');
+}
+
+function aNav(sec){
+  ['home','services','analytics','users','engineers','content','settings'].forEach(s=>{
+    const ap=document.getElementById('ap-'+s); if(ap) ap.classList.toggle('hidden',s!==sec);
+    const as=document.getElementById('as-'+s); if(as) as.classList.toggle('active',s===sec);
+  });
+  if(sec==='home')      loadAHome();
+  if(sec==='services')  loadATable();
+  if(sec==='analytics') loadAnalytics();
+  if(sec==='users')     loadUTable();
+  if(sec==='engineers') loadAEngCards();
+  if(sec==='content')   loadContent();
+  if(sec==='settings')  loadSettings();
+}
+
+async function loadAHome(){
+  try{
+    const stats = await GET('/services/stats/overview');
+    renderAStats(stats);
+    renderAStatusChart(stats.byStatus);
+    loadAEngPerf();
+    loadAOverdue();
+  } catch(e){ toast('error','Failed to load admin dashboard'); }
+}
+
+function renderAStats(s){
+  document.getElementById('a-stats').innerHTML=`
+    <div class="stat c-blue"><div class="stat-val">${s.total}</div><div class="stat-lbl">Total Services</div><div class="stat-ico">📋</div></div>
+    <div class="stat c-amber"><div class="stat-val">${s.active}</div><div class="stat-lbl">Active</div><div class="stat-ico">⚡</div></div>
+    <div class="stat c-red"><div class="stat-val">${s.overdue}</div><div class="stat-lbl">Overdue</div><div class="stat-ico">🚨</div></div>
+    <div class="stat c-green"><div class="stat-val">AED ${Math.round(s.revenue).toLocaleString()}</div><div class="stat-lbl">Revenue</div><div class="stat-ico">💰</div></div>`;
+}
+
+function renderAStatusChart(byStatus){
+  const cols={'Received':'var(--blue)','Diagnosed':'var(--purple)','In Progress':'var(--accent)','Awaiting Parts':'var(--orange)','Ready':'var(--green)','Dispatched':'var(--text3)','Cancelled':'var(--red)'};
+  const max=Math.max(...byStatus.map(b=>b.count),1);
+  document.getElementById('a-status-chart').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
+    ${byStatus.map(b=>`<div class="pbar-row">
+      <div class="pbar-label" style="font-size:11px">${b.status}</div>
+      <div class="pbar-track"><div class="pbar-fill" style="width:${b.count/max*100}%;background:${cols[b.status]||'var(--accent)'}"></div></div>
+      <div class="pbar-val" style="color:${cols[b.status]||'var(--accent)'}">${b.count}</div>
+    </div>`).join('')}</div>`;
+}
+
+async function loadAEngPerf(){
+  try{
+    const engineers = await GET('/users?role=Engineer');
+    const services  = await GET('/services?limit=1000');
+    document.getElementById('a-eng-perf').innerHTML=engineers.map(eng=>{
+      const mine=services.filter(s=>s.engineer_id===eng.id);
+      const active=mine.filter(s=>!['Dispatched','Cancelled'].includes(s.status)).length;
+      const done=mine.filter(s=>s.status==='Dispatched').length;
+      return `<div class="eng-perf-row">
+        <div class="eng-avatar">${eng.first_name[0]}</div>
+        <div style="flex:1"><div class="bold text-sm">${eng.first_name} ${eng.last_name}</div>
+          <div class="dim" style="font-size:11px">${active} active · ${done} done · ${mine.length} total</div></div>
+        <div style="text-align:right"><div style="font-size:18px;font-weight:800;color:var(--green)">${done}</div>
+          <div style="font-size:10px;color:var(--text3)">COMPLETED</div></div>
+      </div>`;}).join('');
+  } catch(e){}
+}
+
+async function loadAOverdue(){
+  try{
+    const services = await GET('/services?limit=1000');
+    const ov=services.filter(s=>s.eta&&new Date(s.eta)<new Date()&&!['Dispatched','Cancelled'].includes(s.status));
+    document.getElementById('a-overdue').innerHTML=ov.length?`<table style="width:100%">
+      <thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Engineer</th><th>ETA</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${ov.map(s=>`<tr>
+        <td><span class="mono red-txt" style="font-size:11px">${s.id}</span></td>
+        <td class="text-sm">${s.cust_name}</td><td class="text-sm">${s.brand} ${s.model}</td>
+        <td class="text-sm">${(s.engineer_name||'').replace('Eng. ','')}</td>
+        <td><span class="mono red-txt" style="font-size:11px">${fmtD(s.eta)}</span></td>
+        <td>${priBdg(s.priority)}</td><td>${statusBdg(s.status)}</td>
+        <td><button class="btn btn-ghost btn-xs" onclick="showServiceModal('${s.id}')">Manage</button></td>
+      </tr>`).join('')}</tbody></table>`
+      :'<div class="alert alert-success">✅ No overdue services!</div>';
+  } catch(e){}
+}
+
+async function loadATable(){
+  loading('a-tbl-body');
+  const v=document.getElementById('a-srch').value;
+  const sf=document.getElementById('a-status-filter').value;
+  const ef=document.getElementById('a-eng-filter').value;
+  try{
+    let qs=''; if(v) qs+=`&search=${encodeURIComponent(v)}`; if(sf) qs+=`&status=${sf}`; if(ef) qs+=`&engineer_id=${ef}`;
+    const services = await GET('/services?'+qs);
+    document.getElementById('a-tbl-body').innerHTML=services.length?services.map(aRow).join(''):`<tr><td colspan="11" class="empty-row">No results.</td></tr>`;
+  } catch(e){ err('a-tbl-body',e.message); }
+}
+function filterATable(){ loadATable(); }
+
+function aRow(s){
+  const overdue=s.eta&&new Date(s.eta)<new Date()&&!['Dispatched','Cancelled'].includes(s.status);
+  return `<tr>
+    <td><span class="mono" style="color:var(--accent);font-size:11px">${s.id}</span></td>
+    <td><div class="bold text-sm">${s.cust_name}</div><div class="dim" style="font-size:10px">${s.cust_phone}</div></td>
+    <td class="text-sm">${s.brand} ${s.model}</td>
+    <td class="text-sm">${(s.engineer_name||'—').replace('Eng. ','')}</td>
+    <td><span class="mono" style="font-size:10px">${fmtD(s.created_at)}</span></td>
+    <td><span class="mono" style="font-size:10px">${fmtD(s.dispatch_at)}</span></td>
+    <td><span class="mono ${overdue?'red-txt':''}" style="font-size:10px">${fmtDT(s.last_activity)}</span></td>
+    <td>${priBdg(s.priority)}</td><td>${statusBdg(s.status)}</td>
+    <td class="mono text-sm">AED ${s.cost}</td>
+    <td><div class="flex gap1">
+      <button class="btn btn-ghost btn-xs" onclick="showServiceModal('${s.id}')">Edit</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteService('${s.id}')">Del</button>
+    </div></td>
+  </tr>`;
+}
+
+async function deleteService(id){
+  if(!confirm('Permanently delete service '+id+'?')) return;
+  try{ await DEL('/services/'+id); loadATable(); loadAHome(); toast('info','🗑 Service deleted'); }
+  catch(e){ toast('error',e.message); }
+}
+
+async function loadAnalytics(){
+  try{
+    const [stats, services, engineers] = await Promise.all([
+      GET('/services/stats/overview'),
+      GET('/services?limit=1000'),
+      GET('/users?role=Engineer')
+    ]);
+    document.getElementById('a-kpi-stats').innerHTML=`
+      <div class="stat c-amber"><div class="stat-val">2.4</div><div class="stat-lbl">Avg Days/Service</div></div>
+      <div class="stat c-green"><div class="stat-val">94%</div><div class="stat-lbl">Satisfaction Rate</div></div>
+      <div class="stat c-blue"><div class="stat-val">87%</div><div class="stat-lbl">First-Fix Rate</div></div>
+      <div class="stat c-purple"><div class="stat-val">${Math.round(stats.total/6)}</div><div class="stat-lbl">Avg / Month</div></div>`;
+    const maxD=Math.max(...stats.byDevice.map(d=>d.count),1);
+    const maxI=Math.max(...stats.byIssue.map(i=>i.count),1);
+    document.getElementById('a-dev-chart').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
+      ${stats.byDevice.map(d=>`<div class="pbar-row"><div class="pbar-label" style="font-size:11px">${d.device_type}</div>
+        <div class="pbar-track"><div class="pbar-fill" style="width:${d.count/maxD*100}%;background:var(--blue)"></div></div>
+        <div class="pbar-val" style="color:var(--blue)">${d.count}</div></div>`).join('')}</div>`;
+    document.getElementById('a-issue-chart').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
+      ${stats.byIssue.map(i=>`<div class="pbar-row"><div class="pbar-label" style="font-size:11px">${i.issue_cat}</div>
+        <div class="pbar-track"><div class="pbar-fill" style="width:${i.count/maxI*100}%;background:var(--accent)"></div></div>
+        <div class="pbar-val" style="color:var(--accent)">${i.count}</div></div>`).join('')}</div>`;
+    const months=['Oct','Nov','Dec','Jan','Feb','Mar'];
+    const vols=[8,11,14,10,13,services.length];
+    const maxV=Math.max(...vols);
+    document.getElementById('a-monthly-chart').innerHTML=`<div style="display:flex;align-items:flex-end;gap:10px;height:140px;padding:10px 0 0">
+      ${months.map((m,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+        <div style="font-size:12px;font-weight:700;color:var(--text2)">${vols[i]}</div>
+        <div style="width:100%;background:${i===5?'var(--accent)':'rgba(245,158,11,0.3)'};border-radius:4px 4px 0 0;height:${vols[i]/maxV*90}px"></div>
+        <div style="font-size:10px;color:var(--text3);font-weight:700">${m}</div>
+      </div>`).join('')}</div>`;
+    document.getElementById('a-sla-chart').innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
+      ${engineers.map(eng=>{
+        const mine=services.filter(s=>s.engineer_id===eng.id&&s.status==='Dispatched');
+        const ok=mine.filter(s=>s.dispatch_at&&new Date(s.dispatch_at)-new Date(s.created_at)<5*86400000).length;
+        const pct=mine.length?Math.round(ok/mine.length*100):0;
+        return `<div class="pbar-row"><div class="pbar-label" style="font-size:11px">${eng.first_name} ${eng.last_name}</div>
+          <div class="pbar-track"><div class="pbar-fill" style="width:${pct}%;background:${pct>80?'var(--green)':pct>50?'var(--accent)':'var(--red)'}"></div></div>
+          <div class="pbar-val" style="color:${pct>80?'var(--green)':pct>50?'var(--accent)':'var(--red)'}">${pct}%</div></div>`;}).join('')}</div>`;
+  } catch(e){ toast('error','Failed to load analytics'); }
+}
+
+async function loadUTable(){
+  loading('u-tbl-body');
+  const v=(document.getElementById('u-srch')||{value:''}).value;
+  const rf=(document.getElementById('u-role-filter')||{value:''}).value;
+  const sf=(document.getElementById('u-status-filter')||{value:''}).value;
+  try{
+    let qs=''; if(v) qs+=`&search=${encodeURIComponent(v)}`; if(rf) qs+=`&role=${rf}`; if(sf) qs+=`&status=${sf}`;
+    const users = await GET('/users?'+qs);
+    document.getElementById('u-tbl-body').innerHTML=users.length?users.map(uRow).join(''):`<tr><td colspan="9" class="empty-row">No users found.</td></tr>`;
+  } catch(e){ err('u-tbl-body',e.message); }
+}
+function filterUTable(){ loadUTable(); }
+
+function uRow(u){
+  const rk=u.role.toLowerCase();
+  return `<tr>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:28px;height:28px;border-radius:8px;background:${rk==='admin'?'var(--purple-dim)':rk==='engineer'?'var(--blue-dim)':'var(--green-dim)'};color:${rk==='admin'?'var(--purple)':rk==='engineer'?'var(--blue)':'var(--green)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">${u.first_name[0]}</div>
+      <div class="bold text-sm">${u.first_name} ${u.last_name}</div></div></td>
+    <td class="text-sm">${u.email}</td>
+    <td class="mono" style="font-size:11px">${u.phone}</td>
+    <td><span class="bdg bdg-${rk}">${u.role}</span></td>
+    <td class="mono" style="font-size:10px">${fmtD(u.created_at)}</td>
+    <td class="mono" style="font-size:10px">${fmtDT(u.last_active)}</td>
+    <td><span class="bdg bdg-${u.status.toLowerCase().replace(' ','')}">${u.status}</span></td>
+    <td class="text-sm bold" style="text-align:center">${u.service_count||0}</td>
+    <td><div class="flex gap1">
+      <button class="btn btn-ghost btn-xs" onclick="openEditUserModal('${u.id}')">Edit</button>
+      <button class="btn ${u.status==='Active'?'btn-secondary':'btn-success'} btn-xs" onclick="toggleUserStatus('${u.id}')">
+        ${u.status==='Active'?'Deactivate':'Activate'}</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteUser('${u.id}')">Del</button>
+    </div></td>
+  </tr>`;
+}
+
+async function toggleUserStatus(id){
+  try{ const r=await PATCH('/users/'+id+'/status',{}); loadUTable(); toast('info','👤 User status → '+r.status); }
+  catch(e){ toast('error',e.message); }
+}
+async function deleteUser(id){
+  if(!confirm('Delete this user?')) return;
+  try{ await DEL('/users/'+id); loadUTable(); toast('info','🗑 User deleted'); }
+  catch(e){ toast('error',e.message); }
+}
+
+async function loadAEngCards(){
+  try{
+    const [engineers, services] = await Promise.all([GET('/users?role=Engineer'), GET('/services?limit=1000')]);
+    document.getElementById('a-eng-cards').innerHTML=engineers.map(eng=>{
+      const mine=services.filter(s=>s.engineer_id===eng.id);
+      const active=mine.filter(s=>!['Dispatched','Cancelled'].includes(s.status)).length;
+      const done=mine.filter(s=>s.status==='Dispatched').length;
+      const high=mine.filter(s=>s.priority==='High'&&!['Dispatched','Cancelled'].includes(s.status)).length;
+      return `<div class="card">
+        <div class="card-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:42px;height:42px;border-radius:10px;background:var(--blue-dim);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px">👨‍🔧</div>
+            <div><div class="bold" style="font-size:15px">${eng.first_name} ${eng.last_name}</div><div class="dim text-xs">Senior Technician</div></div>
+          </div>
+          <span class="bdg bdg-${eng.status.toLowerCase().replace(' ','')}">${eng.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+          <div style="text-align:center;padding:8px;background:var(--bg3);border-radius:7px"><div style="font-size:20px;font-weight:800;color:var(--accent)">${active}</div><div style="font-size:9px;color:var(--text3);font-weight:700">ACTIVE</div></div>
+          <div style="text-align:center;padding:8px;background:var(--bg3);border-radius:7px"><div style="font-size:20px;font-weight:800;color:var(--green)">${done}</div><div style="font-size:9px;color:var(--text3);font-weight:700">DONE</div></div>
+          <div style="text-align:center;padding:8px;background:var(--bg3);border-radius:7px"><div style="font-size:20px;font-weight:800;color:var(--red)">${high}</div><div style="font-size:9px;color:var(--text3);font-weight:700">HIGH PRI</div></div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openEditUserModal('${eng.id}')">Edit Profile</button>
+          <button class="btn btn-primary btn-sm" onclick="toast('info','📌 Reassign dialog coming soon')">Reassign Jobs</button>
+        </div>
+      </div>`;}).join('');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function loadContent(){
+  try{
+    const anns = await GET('/announcements');
+    renderAnnList(anns);
+    renderAnnouncements('c-announcements', anns);
+    const settings = await GET('/settings');
+    if(document.getElementById('s-hours'))    document.getElementById('s-hours').value    = settings.working_hours||'';
+    if(document.getElementById('s-express'))  document.getElementById('s-express').value  = settings.express_fee||'';
+    if(document.getElementById('s-sla'))      document.getElementById('s-sla').value      = settings.sla_days||'';
+    if(document.getElementById('s-maxjobs'))  document.getElementById('s-maxjobs').value  = settings.max_jobs||'';
+  } catch(e){}
+}
+
+function renderAnnList(anns){
+  document.getElementById('a-ann-list').innerHTML=(anns||[]).map(a=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border-radius:8px;margin-bottom:8px">
+      <div style="flex:1"><div class="text-sm bold">${a.text}</div>
+        <div class="dim" style="font-size:10px;margin-top:3px">${a.audience} · ${fmtD(a.created_at)} · ${a.type}</div></div>
+      <button class="btn ${a.active?'btn-secondary':'btn-success'} btn-xs" onclick="toggleAnn('${a.id}',${a.active})">${a.active?'Hide':'Show'}</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteAnn('${a.id}')">✕</button>
+    </div>`).join('');
+}
+
+async function addAnnouncement(){
+  const text=document.getElementById('a-ann-text').value.trim();
+  if(!text){toast('error','Please enter announcement text');return;}
+  try{
+    await POST('/announcements',{text,type:document.getElementById('a-ann-type').value,audience:document.getElementById('a-ann-audience').value});
+    document.getElementById('a-ann-text').value='';
+    const anns=await GET('/announcements'); renderAnnList(anns);
+    toast('success','✅ Announcement published');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function toggleAnn(id, current){
+  try{ await PATCH('/announcements/'+id,{active:!current}); const anns=await GET('/announcements'); renderAnnList(anns); }
+  catch(e){ toast('error',e.message); }
+}
+async function deleteAnn(id){
+  try{ await DEL('/announcements/'+id); const anns=await GET('/announcements'); renderAnnList(anns); toast('info','🗑 Removed'); }
+  catch(e){ toast('error',e.message); }
+}
+
+async function saveSettings(){
+  try{
+    await PUT('/settings',{working_hours:document.getElementById('s-hours').value,express_fee:document.getElementById('s-express').value,sla_days:document.getElementById('s-sla').value,max_jobs:document.getElementById('s-maxjobs').value});
+    toast('success','✅ Settings saved to database');
+  } catch(e){ toast('error',e.message); }
+}
+
+function addDeviceType(){
+  const v=document.getElementById('new-device-type').value.trim(); if(!v) return;
+  const tags=document.getElementById('a-device-tags'); const chip=document.createElement('span'); chip.className='chip'; chip.textContent=v;
+  tags.insertBefore(chip,tags.lastElementChild); document.getElementById('new-device-type').value='';
+  toast('success','➕ "'+v+'" added');
+}
+
+async function loadSettings(){
+  try{
+    const s = await GET('/settings');
+    if(document.getElementById('b-name'))    document.getElementById('b-name').value    = s.portal_name||'';
+    if(document.getElementById('b-phone'))   document.getElementById('b-phone').value   = s.support_phone||'';
+    if(document.getElementById('b-email'))   document.getElementById('b-email').value   = s.support_email||'';
+    if(document.getElementById('b-tagline')) document.getElementById('b-tagline').value = s.tagline||'';
+    renderNotifSettings(s);
+    renderSecSettings(s);
+    loadAuditLog();
+  } catch(e){}
+}
+
+function renderNotifSettings(s){
+  const el=document.getElementById('notif-settings'); if(!el) return;
+  el.innerHTML=[
+    {key:'notif_sms',label:'SMS to customer on intake'},
+    {key:'notif_email',label:'Email on every status change'},
+    {key:'notif_whatsapp',label:'WhatsApp when device is ready'},
+    {key:'notif_digest',label:'Daily digest email to engineers'},
+  ].map(it=>`<div class="fg"><label class="plain"><input type="checkbox" id="ns-${it.key}" ${s&&s[it.key]==='1'?'checked':''}> ${it.label}</label></div>`).join('');
+}
+
+function renderSecSettings(s){
+  const el=document.getElementById('sec-settings'); if(!el) return;
+  el.innerHTML=[
+    {key:'sec_2fa',label:'Require 2FA for admin accounts'},
+    {key:'sec_timeout',label:'Session timeout after 30 minutes'},
+    {key:'sec_audit',label:'Audit all admin actions'},
+  ].map(it=>`<div class="fg"><label class="plain"><input type="checkbox" ${s&&s[it.key]==='1'?'checked':''}> ${it.label}</label></div>`).join('');
+}
+
+async function saveNotifSettings(){
+  try{
+    const keys=['notif_sms','notif_email','notif_whatsapp','notif_digest'];
+    const body={};
+    keys.forEach(k=>{const el=document.getElementById('ns-'+k);if(el) body[k]=el.checked?'1':'0';});
+    await PUT('/settings',body);
+    toast('success','✅ Notification settings saved');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function saveBranding(){
+  try{
+    await PUT('/settings',{portal_name:document.getElementById('b-name').value,support_phone:document.getElementById('b-phone').value,support_email:document.getElementById('b-email').value,tagline:document.getElementById('b-tagline').value});
+    toast('success','✅ Branding saved to database');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function loadAuditLog(){
+  try{
+    const logs = await GET('/audit');
+    const el=document.getElementById('a-audit-log'); if(!el) return;
+    el.innerHTML=`<table style="width:100%"><thead><tr><th>Action</th><th>User</th><th>Time</th><th>IP</th></tr></thead>
+      <tbody>${logs.map(l=>`<tr><td class="text-sm">${l.action}</td><td class="text-sm muted">${l.user_email||'system'}</td>
+        <td class="mono" style="font-size:10px">${fmtDT(l.created_at)}</td>
+        <td class="mono" style="font-size:10px">${l.ip||'—'}</td></tr>`).join('')}</tbody></table>`;
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════════
+// USER MODAL
+// ══════════════════════════════════════════════════
+function openAddUserModal(){
+  document.getElementById('m-user-title').textContent='Add New User';
+  document.getElementById('mu-edit-id').value='';
+  ['mu-first','mu-last','mu-email','mu-phone','mu-pass'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mu-role').value='Customer';
+  document.getElementById('mu-status').value='Active';
+  openModal('modal-user');
+}
+
+async function openEditUserModal(id){
+  try{
+    const users = await GET('/users'); const u=users.find(x=>x.id===id); if(!u) return;
+    document.getElementById('m-user-title').textContent='Edit: '+u.first_name+' '+u.last_name;
+    document.getElementById('mu-edit-id').value=id;
+    document.getElementById('mu-first').value=u.first_name;
+    document.getElementById('mu-last').value=u.last_name;
+    document.getElementById('mu-email').value=u.email;
+    document.getElementById('mu-phone').value=u.phone||'';
+    document.getElementById('mu-role').value=u.role;
+    document.getElementById('mu-status').value=u.status;
+    document.getElementById('mu-pass').value='';
+    openModal('modal-user');
+  } catch(e){ toast('error',e.message); }
+}
+
+async function saveUser(){
+  const f=document.getElementById('mu-first').value.trim(), l=document.getElementById('mu-last').value.trim();
+  const e=document.getElementById('mu-email').value.trim();
+  if(!f||!l||!e){toast('error','Name and email are required');return;}
+  const body={firstName:f,lastName:l,email:e,phone:document.getElementById('mu-phone').value,role:document.getElementById('mu-role').value,status:document.getElementById('mu-status').value,password:document.getElementById('mu-pass').value};
+  const editId=document.getElementById('mu-edit-id').value;
+  try{
+    if(editId){ await PUT('/users/'+editId, body); toast('success','✅ User updated'); }
+    else{ await POST('/users',body); if(document.getElementById('mu-welcome').checked) toast('info','📧 Welcome email sent to '+e); toast('success','✅ User created!'); }
+    closeModal('modal-user'); loadUTable();
+  } catch(e){ toast('error',e.message); }
+}
+
+// ══════════════════════════════════════════════════
+// SERVICE DETAIL MODAL
+// ══════════════════════════════════════════════════
+async function showServiceModal(id){
+  APP.editServiceId=id;
+  document.getElementById('m-svc-title').textContent='Loading…';
+  document.getElementById('m-svc-body').innerHTML='<div style="text-align:center;padding:32px;color:var(--text3)">Loading service details…</div>';
+  openModal('modal-service');
+  try{
+    const s = await GET('/services/'+id);
+    const isAdmin=APP.user&&APP.user.role==='Admin';
+    const isEng=APP.user&&APP.user.role==='Engineer';
+    document.getElementById('m-svc-title').textContent='Service '+s.id;
+    let engOpts='';
+    if(isAdmin){
+      try{ const engs=await GET('/users?role=Engineer'); engOpts=engs.map(e=>`<option value="${e.id}" data-name="Eng. ${e.first_name} ${e.last_name}" ${e.id===s.engineer_id?'selected':''}>${e.first_name} ${e.last_name}</option>`).join(''); }catch(e){}
+    }
+    document.getElementById('m-svc-body').innerHTML=`
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+        ${statusBdg(s.status)} ${priBdg(s.priority)} <span class="chip">${s.source||'online'}</span>
+      </div>
+      <div class="tr-grid">
+        <div class="tr-field"><div class="tr-fl">Customer</div><div class="tr-fv">${s.cust_name}</div></div>
+        <div class="tr-field"><div class="tr-fl">Phone</div><div class="tr-fv mono">${s.cust_phone}</div></div>
+        <div class="tr-field"><div class="tr-fl">Device</div><div class="tr-fv">${s.brand} ${s.model}</div></div>
+        <div class="tr-field"><div class="tr-fl">Issue</div><div class="tr-fv">${s.issue_cat}</div></div>
+        <div class="tr-field"><div class="tr-fl">Serial</div><div class="tr-fv mono">${s.serial||'—'}</div></div>
+        <div class="tr-field"><div class="tr-fl">Warranty</div><div class="tr-fv">${s.warranty}</div></div>
+        <div class="tr-field"><div class="tr-fl">Intake</div><div class="tr-fv mono">${fmtD(s.created_at)}</div></div>
+        <div class="tr-field"><div class="tr-fl">ETA</div><div class="tr-fv mono">${fmtD(s.eta)}</div></div>
+        <div class="tr-field"><div class="tr-fl">Engineer</div><div class="tr-fv">${s.engineer_name||'Unassigned'}</div></div>
+        <div class="tr-field"><div class="tr-fl">Est. Cost</div><div class="tr-fv mono">AED ${s.cost||0}</div></div>
+      </div>
+      ${s.issue_desc?`<div class="fg mt3"><label>Issue Description</label><div style="background:var(--bg3);padding:10px 14px;border-radius:6px;font-size:12px;color:var(--text2)">${s.issue_desc}</div></div>`:''}
+      ${s.diagnosis?`<div class="fg"><label>Diagnosis</label><div style="background:var(--bg3);padding:10px 14px;border-radius:6px;font-size:12px;color:var(--text2)">${s.diagnosis}</div></div>`:''}
+      ${(isAdmin||isEng)?`
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+        <div class="fr">
+          <div class="fg"><label>Update Status</label>
+            <select id="m-status-sel">${['Received','Diagnosed','In Progress','Awaiting Parts','Ready','Dispatched','Cancelled'].map(st=>`<option ${st===s.status?'selected':''}>${st}</option>`).join('')}</select></div>
+          <div class="fg"><label>Update Cost (AED)</label><input type="number" id="m-cost-inp" value="${s.cost||0}" min="0"></div>
+        </div>
+        ${isAdmin?`<div class="fg"><label>Reassign Engineer</label><select id="m-eng-sel">${engOpts}</select></div>`:''}
+        <div class="fg"><label>Add Note / Update</label><textarea id="m-note-inp" placeholder="Describe what was done…" rows="3">${s.notes||''}</textarea></div>
+      </div>`:''}
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">📋 Activity Timeline</div>
+        <div class="tl">${(s.activities||[]).map(a=>`<div class="tl-item done">
+          <div class="tl-date">${fmtDT(a.created_at)}</div>
+          <div class="tl-text">${a.text}</div>
+          <div class="tl-sub">By ${a.by_user||'System'}</div>
+        </div>`).join('')}</div>
+      </div>`;
+  } catch(e){ document.getElementById('m-svc-body').innerHTML=`<div class="alert alert-danger">${e.message}</div>`; }
+}
+
+async function saveServiceUpdate(){
+  const s_id=APP.editServiceId; if(!s_id){closeModal('modal-service');return;}
+  const statusEl=document.getElementById('m-status-sel');
+  const costEl=document.getElementById('m-cost-inp');
+  const noteEl=document.getElementById('m-note-inp');
+  const engEl=document.getElementById('m-eng-sel');
+  const body={};
+  if(statusEl) body.status=statusEl.value;
+  if(costEl)   body.cost=parseFloat(costEl.value)||0;
+  if(noteEl&&noteEl.value.trim()) body.addNote=noteEl.value.trim();
+  if(noteEl)   body.notes=noteEl.value;
+  if(engEl){
+    body.engineerId=engEl.value;
+    body.engineerName=engEl.options[engEl.selectedIndex].getAttribute('data-name')||engEl.options[engEl.selectedIndex].text;
+  }
+  try{
+    const r=await PATCH('/services/'+s_id, body);
+    toast('success','✅ Service updated: '+r.changes.join(', '));
+    closeModal('modal-service');
+    if(APP.portal==='customer'){ loadCTable(); loadCHome(); }
+    if(APP.portal==='engineer'){ loadETable(); loadEHome(); loadEAssigned(); }
+    if(APP.portal==='admin')   { loadATable(); loadAHome(); }
+  } catch(e){ toast('error',e.message); }
+}
+
+// ══════════════════════════════════════════════════
+// PROFILE MODAL
+// ══════════════════════════════════════════════════
+function openProfileModal(){
+  if(!APP.user) return;
+  document.getElementById('m-profile-body').innerHTML=`
+    <div class="fr">
+      <div class="fg"><label>First Name</label><input type="text" id="pf-first" value="${APP.user.firstName||''}"></div>
+      <div class="fg"><label>Last Name</label><input type="text" id="pf-last" value="${APP.user.lastName||''}"></div>
+    </div>
+    <div class="fg"><label>Email</label><input type="email" value="${APP.user.email}" disabled style="opacity:0.6"></div>
+    <div class="fg"><label>Phone</label><input type="text" id="pf-phone" value="${APP.user.phone||''}"></div>
+    <div class="fg"><label>New Password</label><input type="password" id="pf-pass" placeholder="Leave blank to keep current"></div>`;
+  openModal('modal-profile');
+}
+
+async function saveProfile(){
+  try{
+    await PUT('/auth/me',{firstName:document.getElementById('pf-first').value,lastName:document.getElementById('pf-last').value,phone:document.getElementById('pf-phone').value,password:document.getElementById('pf-pass').value||undefined});
+    APP.user.firstName=document.getElementById('pf-first').value;
+    APP.user.lastName=document.getElementById('pf-last').value;
+    APP.user.name=APP.user.firstName+' '+APP.user.lastName;
+    document.getElementById('navUname').textContent=APP.user.name;
+    closeModal('modal-profile');
+    toast('success','✅ Profile updated');
+  } catch(e){ toast('error',e.message); }
+}
+
+// ══════════════════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ══════════════════════════════════════════════════
+// INIT — check for existing token on load
+// ══════════════════════════════════════════════════
+(async function init(){
+  if(_token){
+    try{
+      const user = await GET('/auth/me');
+      APP.user={
+        id:user.id, email:user.email, role:user.role,
+        firstName:user.first_name, lastName:user.last_name,
+        name:user.first_name+' '+user.last_name, phone:user.phone
+      };
+      const roleMap={Customer:'customer',Engineer:'engineer',Admin:'admin'};
+      APP.portal=roleMap[user.role]||'customer';
+      switchPortal(APP.portal);
+      if(APP.portal==='customer') openCustDash();
+      if(APP.portal==='engineer') openEngDash();
+      if(APP.portal==='admin')    openAdminDash();
+      return;
+    } catch(e){ setToken(null); }
+  }
+  switchPortal('customer');
+})();
+
+
+// ══════════════════════════════════════════════════
+// THEME SYSTEM
+// ══════════════════════════════════════════════════
+const THEMES = [
+  { id:'dark',   name:'Dark',   swatch:'#0a0c10', icon:'🌑', accent:'#f59e0b' },
+  { id:'light',  name:'Light',  swatch:'#f8f9fb', icon:'☀️', accent:'#f59e0b' },
+  { id:'ocean',  name:'Ocean',  swatch:'#060e1e', icon:'🌊', accent:'#38bdf8' },
+  { id:'sand',   name:'Sand',   swatch:'#fdf8f0', icon:'🏜️', accent:'#c2410c' },
+  { id:'violet', name:'Violet', swatch:'#0d0814', icon:'🔮', accent:'#a78bfa' },
+];
+const THEME_KEY = 'rp_theme';
+
+function applyTheme(id, save=true){
+  const theme = THEMES.find(t=>t.id===id) || THEMES[0];
+  document.documentElement.setAttribute('data-theme', id);
+  if(save) localStorage.setItem(THEME_KEY, id);
+  // update active state in panel
+  document.querySelectorAll('.theme-option').forEach(el=>{
+    el.classList.toggle('active', el.dataset.theme===id);
+  });
+  // update logo accent color
+  const logoSpan = document.querySelector('.logo-text span, .logo-text b');
+  if(logoSpan) logoSpan.style.color = theme.accent;
+}
+
+function buildThemePanel(){
+  const wrap = document.getElementById('theme-wrap');
+  if(!wrap) return;
+  wrap.innerHTML = `
+    <div class="theme-btn" id="theme-btn" onclick="toggleThemePanel(event)" title="Change theme">🎨</div>
+    <div class="theme-panel" id="theme-panel">
+      <div class="theme-panel-title">Choose theme</div>
+      <div class="theme-grid">
+        ${THEMES.map(t=>`
+          <div class="theme-option" data-theme="${t.id}" onclick="applyTheme('${t.id}')">
+            <div class="theme-swatch" style="background:${t.swatch};border:2px solid ${t.accent}">
+              <span style="font-size:10px">${t.icon}</span>
+            </div>
+            <span class="theme-name">${t.name}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function toggleThemePanel(e){
+  e.stopPropagation();
+  document.getElementById('theme-panel').classList.toggle('open');
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', ()=>{
+  const panel = document.getElementById('theme-panel');
+  if(panel) panel.classList.remove('open');
+});
+
+// Load saved theme on startup
+(function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY) || 'dark';
+  // Build panel first, then apply
+  buildThemePanel();
+  applyTheme(saved, false);
+})();
+
+</script>
+</body>
+</html>
