@@ -125,6 +125,17 @@ const defaultSettings = {
   sec_2fa:        '1',
   sec_timeout:    '1',
   sec_audit:      '1',
+  portal_logo:    '',
+  nav_brand_text: '',
+  smtp_host:      '',
+  smtp_port:      '587',
+  smtp_user:      '',
+  smtp_pass:      '',
+  smtp_from_name: '',
+  smtp_from_email:'',
+  smtp_secure:    '0',
+  email_notify_enabled: '0',
+  email_notify_statuses:'["Diagnosed","Ready","Dispatched"]',
 };
 const insertSetting = db.prepare(`INSERT OR IGNORE INTO settings(key,value) VALUES(?,?)`);
 for (const [k, v] of Object.entries(defaultSettings)) insertSetting.run(k, v);

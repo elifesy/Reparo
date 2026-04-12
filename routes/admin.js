@@ -3,6 +3,7 @@ const bcrypt  = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const db      = require('../db/setup');
 const { auth } = require('../middleware/auth');
+const { sendTestEmail } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -16,8 +17,9 @@ router.get('/users', auth(['Admin']), (req, res) => {
   if (role)   { where.push('role = ?');   params.push(role); }
   if (status) { where.push('status = ?'); params.push(status); }
   if (search) {
-    where.push('(first_name||" "||last_name LIKE ? OR email LIKE ?)');
-    params.push(`%${search}%`, `%${search}%`);
+    where.push('(first_name||" "||last_name LIKE ? OR email LIKE ? OR phone LIKE ? OR role LIKE ?)');
+    const like = `%${search}%`;
+    params.push(like, like, like, like);
   }
   const whereStr = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const rows = db.prepare(`SELECT id,first_name,last_name,email,phone,role,status,created_at,last_active FROM users ${whereStr} ORDER BY created_at DESC`).all(...params);
@@ -106,6 +108,17 @@ router.delete('/announcements/:id', auth(['Admin']), (req, res) => {
 // SETTINGS  (Admin only)
 // ══════════════════════════════════════
 
+// Public — only branding fields needed before login
+router.get('/branding', (req, res) => {
+  const keys = ['portal_name','nav_brand_text','portal_logo'];
+  const obj = {};
+  keys.forEach(k => {
+    const row = db.prepare('SELECT value FROM settings WHERE key=?').get(k);
+    obj[k] = row ? row.value : '';
+  });
+  res.json(obj);
+});
+
 router.get('/settings', auth(['Admin']), (req, res) => {
   const rows = db.prepare('SELECT key,value FROM settings').all();
   const obj = {};
@@ -130,6 +143,87 @@ router.put('/settings', auth(['Admin']), (req, res) => {
 router.get('/audit', auth(['Admin']), (req, res) => {
   const rows = db.prepare('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 100').all();
   res.json(rows);
+});
+
+// ══════════════════════════════════════
+// TEST EMAIL
+// ══════════════════════════════════════
+
+router.post('/test-email', auth(['Admin']), async (req, res) => {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: 'Recipient email required' });
+  try {
+    await sendTestEmail(to);
+    db.prepare('INSERT INTO audit_log(action,user_email,ip) VALUES(?,?,?)').run(`Test email sent to ${to}`, req.user.email, req.ip);
+    res.json({ message: 'Test email sent successfully' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══════════════════════════════════════
+// STORAGE STATS
+// ══════════════════════════════════════
+
+router.get('/storage-stats', auth(['Admin']), (req, res) => {
+  const stats = {
+    users:            db.prepare('SELECT COUNT(*) as n FROM users').get().n,
+    services:         db.prepare('SELECT COUNT(*) as n FROM services').get().n,
+    service_activity: db.prepare('SELECT COUNT(*) as n FROM service_activity').get().n,
+    announcements:    db.prepare('SELECT COUNT(*) as n FROM announcements').get().n,
+    audit_log:        db.prepare('SELECT COUNT(*) as n FROM audit_log').get().n,
+    settings:         db.prepare('SELECT COUNT(*) as n FROM settings').get().n,
+  };
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const dbPath = process.env.NODE_ENV === 'production'
+      ? '/data/reparo.sqlite'
+      : path.join(__dirname, '../db/reparo.sqlite');
+    stats.db_size_bytes = fs.statSync(dbPath).size;
+  } catch { stats.db_size_bytes = null; }
+  res.json(stats);
+});
+
+// ══════════════════════════════════════
+// CLEAR ALL DATA & RESET
+// ══════════════════════════════════════
+
+router.post('/clear-data', auth(['Admin']), (req, res) => {
+  try {
+    db.transaction(() => {
+      db.prepare('DELETE FROM service_activity').run();
+      db.prepare('DELETE FROM services').run();
+      db.prepare('DELETE FROM users').run();
+      db.prepare('DELETE FROM announcements').run();
+      db.prepare('DELETE FROM audit_log').run();
+      db.prepare(`DELETE FROM settings WHERE key IN (
+        'portal_logo','nav_brand_text','smtp_host','smtp_port','smtp_user',
+        'smtp_pass','smtp_from_name','smtp_from_email','smtp_secure',
+        'email_notify_enabled','email_notify_statuses'
+      )`).run();
+    })();
+    const insertSetting = db.prepare('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)');
+    // Re-insert default settings
+    const defaults = {
+      working_hours:'9:00 AM – 6:00 PM, Sat–Thu', express_fee:'50', sla_days:'5', max_jobs:'8',
+      portal_name:'Reparo', support_phone:'+971 4 000 0000', support_email:'support@reparo.com',
+      tagline:'Intelligent Device Service Management',
+      notif_sms:'1', notif_email:'1', notif_whatsapp:'1', notif_digest:'0',
+      sec_2fa:'1', sec_timeout:'1', sec_audit:'1',
+      portal_logo:'', nav_brand_text:'', nav_show_name:'1',
+      smtp_host:'', smtp_port:'587', smtp_user:'', smtp_pass:'',
+      smtp_from_name:'', smtp_from_email:'', smtp_secure:'0',
+      email_notify_enabled:'0', email_notify_statuses:'["Diagnosed","Ready","Dispatched"]',
+    };
+    for (const [k,v] of Object.entries(defaults)) insertSetting.run(k,v);
+    // Re-seed users, services, announcements
+    const { seed } = require('./seedHelper');
+    seed(db);
+    res.json({ message: 'All data cleared and reset to defaults.' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

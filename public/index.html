@@ -292,6 +292,24 @@ textarea{resize:vertical;min-height:80px;}
 .srch{position:relative;}
 .srch input{padding:6px 10px 6px 32px;width:200px;font-size:12px;}
 .srch-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text3);}
+/* ── ENHANCED SEARCH ── */
+.srch-wrap { display:flex; flex-direction:column; gap:6px; }
+.srch-row  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.srch { position:relative; }
+.srch input { padding:6px 28px 6px 32px; width:240px; font-size:13px; }
+.srch-clear { position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  cursor:pointer; color:var(--text3); font-size:12px; display:none; background:none; border:none;
+  font-family:'Syne',sans-serif; padding:0; line-height:1; }
+.srch-clear.visible { display:block; }
+.srch-clear:hover { color:var(--text); }
+.srch-chips { display:flex; gap:5px; flex-wrap:wrap; min-height:0; }
+.srch-chip { display:inline-flex; align-items:center; gap:4px; padding:2px 8px;
+  background:var(--accent-dim); border:1px solid rgba(245,158,11,0.3); border-radius:20px;
+  font-size:11px; font-weight:600; color:var(--accent); animation:chipIn .15s ease; }
+@keyframes chipIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+.srch-hint { font-size:11px; color:var(--text3); padding:2px 0; }
+.srch-count { font-size:11px; color:var(--text2); font-weight:600; margin-left:auto; flex-shrink:0; }
+
 .fsel{padding:6px 10px;font-size:12px;width:auto;}
 table{width:100%;border-collapse:collapse;}
 th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
@@ -392,10 +410,22 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 .alert-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
 
 /* TRACK */
-.track-wrap{max-width:580px;margin:0 auto;}
-.track-row{display:flex;gap:10px;margin-bottom:20px;}
-.track-row input{flex:1;font-size:15px;padding:12px 16px;font-family:'JetBrains Mono',monospace;}
+.track-wrap{max-width:620px;margin:0 auto;}
+.track-row{display:flex;gap:10px;margin-bottom:8px;}
+.track-row input{flex:1;font-size:15px;padding:12px 16px;}
+.track-hint{font-size:12px;color:var(--text3);margin-bottom:18px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.track-hint-chip{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;color:var(--text2);}
 .track-result{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+.track-results-list{display:flex;flex-direction:column;gap:10px;}
+.track-match-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .15s;}
+.track-match-card:hover{border-color:var(--accent);transform:translateY(-1px);}
+.track-match-card.selected{border-color:var(--accent);background:var(--accent-d);}
+.track-match-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.track-match-id{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--accent);}
+.track-match-meta{display:flex;gap:16px;flex-wrap:wrap;}
+.track-match-meta-item{font-size:12px;color:var(--text2);}
+.track-match-meta-item strong{color:var(--text);font-weight:600;display:block;font-size:13px;}
+.track-results-count{font-size:13px;color:var(--text2);margin-bottom:12px;font-weight:500;}
 .tr-id{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--accent);}
 .tr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
 .tr-field{padding:10px 14px;background:var(--bg3);border-radius:var(--radius2);}
@@ -460,7 +490,10 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 
 <!-- TOP NAV -->
 <nav class="topnav">
-  <a class="logo"><div class="logo-icon">⚡</div><div class="logo-text">Re<span>paro</span></div></a>
+  <a class="logo" id="nav-logo-link">
+    <div class="logo-icon" id="nav-logo-icon" style="overflow:hidden">⚡</div>
+    <div class="logo-text" id="nav-logo-text">Re<span>paro</span></div>
+  </a>
   <div class="nav-tabs" id="navTabs">
     <button class="nav-tab active" onclick="switchPortal('customer')">🧑 Customer</button>
     <button class="nav-tab" onclick="switchPortal('engineer')">🔧 Engineer</button>
@@ -497,11 +530,12 @@ tr:hover td{background:rgba(255,255,255,0.015);}
         </div>
         <button class="btn btn-primary btn-full" onclick="doLogin('customer')">Sign In →</button>
         <div class="divider"><div class="divider-line"></div><div class="divider-text">or</div><div class="divider-line"></div></div>
-        <div class="flex gap2">
-          <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="demoLogin('customer')">🚀 Demo Login</button>
-          <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="showTrackPublic()">🔍 Track Only</button>
+        <button class="btn btn-secondary btn-full" onclick="showTrackPublic()">🔍 Track My Repair — No Login Needed</button>
+        <div class="hidden" id="demo-hints-customer">
+          <div class="divider" style="margin:12px 0"><div class="divider-line"></div><div class="divider-text" style="font-size:10px;color:var(--text3)">demo</div><div class="divider-line"></div></div>
+          <button class="btn btn-secondary btn-full" onclick="demoLogin('customer')">🚀 Demo Customer Login</button>
+          <div class="alert alert-info mt3">💡 <strong>demo@reparo.com</strong> / <strong>Demo1234!</strong></div>
         </div>
-        <div class="alert alert-info mt3">💡 Demo: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1f7b7a72705f6b7a7c776c7a6d69317c7072">[email&#160;protected]</a></strong> / <strong>Demo1234!</strong></div>
       </div>
       <!-- REGISTER -->
       <div id="c-reg-form" class="hidden">
@@ -582,8 +616,19 @@ tr:hover td{background:rgba(255,255,255,0.015);}
           <div class="ph"><div class="ph-left"><div class="ph-title">My Requests</div><div class="ph-sub">All your service history</div></div></div>
           <div class="tbl-wrap">
             <div class="tbl-bar"><div class="tbl-title">Service Requests</div>
-              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search…" oninput="filterCTable(this.value)"></div>
-              <select class="fsel" onchange="filterCStatus(this.value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option></select>
+              <div class="srch-wrap" style="flex:1">
+                <div class="srch-row">
+                  <div class="srch">
+                    <span class="srch-ico">🔍</span>
+                    <input type="text" placeholder="Search ID, device, issue…" id="c-srch"
+                      oninput="onCSearch(this.value)" autocomplete="off">
+                    <button class="srch-clear" id="c-srch-clear" onclick="clearCSearch()" title="Clear">✕</button>
+                  </div>
+                  <select class="fsel" id="c-status-fsel" onchange="filterCStatus(this.value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option></select>
+                  <span class="srch-count" id="c-srch-count"></span>
+                </div>
+                <div class="srch-chips" id="c-srch-chips"></div>
+              </div>
             </div>
             <table><thead><tr><th>ID</th><th>Device</th><th>Issue</th><th>Priority</th><th>Intake</th><th>Last Update</th><th>Status</th><th>Action</th></tr></thead>
             <tbody id="c-tbl-body"></tbody></table>
@@ -591,9 +636,18 @@ tr:hover td{background:rgba(255,255,255,0.015);}
         </div>
         <!-- TRACK -->
         <div id="cp-track" class="hidden">
-          <div class="ph"><div class="ph-left"><div class="ph-title">Track Request</div><div class="ph-sub">Enter a service ID to check status</div></div></div>
+          <div class="ph"><div class="ph-left"><div class="ph-title">Track Request</div><div class="ph-sub">Search by request ID, phone number, or email address</div></div></div>
           <div class="track-wrap">
-            <div class="track-row"><input type="text" id="c-track-id" class="mono" placeholder="e.g. RPR-0001" oninput="this.value=this.value.toUpperCase()"><button class="btn btn-primary" onclick="doTrack()">Track →</button></div>
+            <div class="track-row">
+              <input type="text" id="c-track-id" placeholder="RPR-0001  or  +971 50…  or  your@email.com" oninput="onTrackInput('c-track-id','c-track-hint','c-track-verify-row')" autocomplete="off" onkeydown="if(event.key==='Enter')doTrack()">
+              <button class="btn btn-primary" onclick="doTrack()">Search →</button>
+            </div>
+            <div class="track-row hidden" id="c-track-verify-row" style="margin-top:-2px">
+              <input type="text" id="c-track-verify" placeholder="Last 4 digits of your phone, or your email" autocomplete="off" onkeydown="if(event.key==='Enter')doTrack()" style="font-size:13px">
+            </div>
+            <div class="track-hint" id="c-track-hint">
+              Search by: <span class="track-hint-chip">Request ID</span> <span class="track-hint-chip">Phone number</span> <span class="track-hint-chip">Email address</span>
+            </div>
             <div id="c-track-result"></div>
           </div>
         </div>
@@ -604,8 +658,17 @@ tr:hover td{background:rgba(255,255,255,0.015);}
   <div class="hidden" id="c-public-track">
     <div class="auth-wrap">
       <div class="auth-box" style="max-width:560px">
-        <div class="auth-head"><div class="auth-ico">🔍</div><div class="auth-title">Track Your Request</div><div class="auth-sub">No login required — just enter your request ID</div></div>
-        <div class="track-row"><input type="text" id="pub-track-id" class="mono" placeholder="e.g. RPR-0001" oninput="this.value=this.value.toUpperCase()"><button class="btn btn-primary" onclick="doPublicTrack()">Track →</button></div>
+        <div class="auth-head"><div class="auth-ico">🔍</div><div class="auth-title">Track Your Request</div><div class="auth-sub">Search by request ID, phone number, or email — no login required</div></div>
+        <div class="track-row">
+          <input type="text" id="pub-track-id" placeholder="RPR-0001  or  +971 50…  or  your@email.com" oninput="onTrackInput('pub-track-id','pub-track-hint','pub-track-verify-row')" autocomplete="off" onkeydown="if(event.key==='Enter')doPublicTrack()">
+          <button class="btn btn-primary" onclick="doPublicTrack()">Search →</button>
+        </div>
+        <div class="track-row hidden" id="pub-track-verify-row" style="margin-top:-2px">
+          <input type="text" id="pub-track-verify" placeholder="Last 4 digits of your phone, or your email" autocomplete="off" onkeydown="if(event.key==='Enter')doPublicTrack()" style="font-size:13px">
+        </div>
+        <div class="track-hint" id="pub-track-hint">
+          Search by: <span class="track-hint-chip">Request ID</span> <span class="track-hint-chip">Phone number</span> <span class="track-hint-chip">Email address</span>
+        </div>
         <div id="pub-track-result"></div>
         <div class="divider"><div class="divider-line"></div><div class="divider-text">or</div><div class="divider-line"></div></div>
         <button class="btn btn-secondary btn-full" onclick="backToLogin()">← Sign In to see all requests</button>
@@ -624,7 +687,10 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div class="fg"><label>Employee ID or Email</label><div class="ico-wrap"><span class="ico">🪪</span><input type="text" id="e-user" placeholder="ENG-001 or engineer@reparo.com"></div></div>
       <div class="fg"><label>Password</label><div class="ico-wrap"><span class="ico">🔒</span><input type="password" id="e-pass" placeholder="Password"><span class="pw-eye" onclick="togglePw('e-pass',this)">👁</span></div></div>
       <button class="btn btn-primary btn-full mt2" onclick="doLogin('engineer')">Access Dashboard →</button>
-      <button class="btn btn-secondary btn-full mt2" onclick="demoLogin('engineer')">🚀 Demo Engineer Login</button>
+      <div class="hidden" id="demo-hints-engineer">
+        <button class="btn btn-secondary btn-full mt2" onclick="demoLogin('engineer')">🚀 Demo Engineer Login</button>
+        <div class="alert alert-info mt2">💡 <strong>m.alfarsi@reparo.com</strong> / <strong>Eng1234!</strong></div>
+      </div>
       <div class="alert alert-warning mt3">🔐 All actions are logged and audited.</div>
     </div>
   </div>
@@ -737,9 +803,20 @@ tr:hover td{background:rgba(255,255,255,0.015);}
             <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📊 Export CSV</button></div>
           <div class="tbl-wrap">
             <div class="tbl-bar"><div class="tbl-title">Service Log</div>
-              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search ID, device, customer…" oninput="filterETable(this.value)" id="e-srch"></div>
-              <select class="fsel" id="e-status-filter" onchange="filterETable(document.getElementById('e-srch').value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option></select>
-              <select class="fsel" id="e-pri-filter" onchange="filterETable(document.getElementById('e-srch').value)"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+              <div class="srch-wrap" style="flex:1">
+                <div class="srch-row">
+                  <div class="srch">
+                    <span class="srch-ico">🔍</span>
+                    <input type="text" placeholder="Search ID, customer, device, serial, phone…" id="e-srch"
+                      oninput="onESearch(this.value)" autocomplete="off">
+                    <button class="srch-clear" id="e-srch-clear" onclick="clearESearch()" title="Clear">✕</button>
+                  </div>
+                  <select class="fsel" id="e-status-filter" onchange="filterETable()"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option></select>
+                  <select class="fsel" id="e-pri-filter" onchange="filterETable()"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+                  <span class="srch-count" id="e-srch-count"></span>
+                </div>
+                <div class="srch-chips" id="e-srch-chips"></div>
+              </div>
             </div>
             <table><thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Issue</th><th>Engineer</th><th>Intake</th><th>ETA</th><th>Dispatched</th><th>Last Activity</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="e-tbl-body"></tbody></table>
@@ -777,10 +854,12 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div class="alert alert-danger">🔐 Unauthorized access attempts are logged and reported.</div>
       <div class="fg mt3"><label>Admin Email</label><div class="ico-wrap"><span class="ico">✉</span><input type="email" id="a-email" placeholder="admin@reparo.com"></div></div>
       <div class="fg"><label>Password</label><div class="ico-wrap"><span class="ico">🔒</span><input type="password" id="a-pass" placeholder="Admin password"><span class="pw-eye" onclick="togglePw('a-pass',this)">👁</span></div></div>
-      <div class="fg"><label>2FA Code</label><div class="ico-wrap"><span class="ico">📲</span><input type="text" id="a-2fa" class="mono" placeholder="6-digit authenticator code" maxlength="6"></div>
-        <div class="hint">Demo 2FA code: <strong style="color:var(--accent)">123456</strong></div></div>
+      <div class="fg"><label>2FA Code</label><div class="ico-wrap"><span class="ico">📲</span><input type="text" id="a-2fa" class="mono" placeholder="6-digit authenticator code" maxlength="6"></div></div>
       <button class="btn btn-primary btn-full mt3" onclick="doLogin('admin')">Access Admin Panel →</button>
-      <button class="btn btn-secondary btn-full mt2" onclick="demoLogin('admin')">🚀 Demo Admin Login</button>
+      <div class="hidden" id="demo-hints-admin">
+        <button class="btn btn-secondary btn-full mt2" onclick="demoLogin('admin')">🚀 Demo Admin Login</button>
+        <div class="alert alert-info mt2">💡 <strong>admin@reparo.com</strong> / <strong>Admin1234!</strong> · 2FA: <strong>123456</strong></div>
+      </div>
     </div>
   </div>
   <div class="hidden" id="a-dash">
@@ -820,9 +899,20 @@ tr:hover td{background:rgba(255,255,255,0.015);}
             <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📤 Export</button></div>
           <div class="tbl-wrap">
             <div class="tbl-bar"><div class="tbl-title">Master Service Log</div>
-              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search…" oninput="filterATable(this.value)" id="a-srch"></div>
-              <select class="fsel" id="a-status-filter" onchange="filterATable(document.getElementById('a-srch').value)"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option><option>Cancelled</option></select>
-              <select class="fsel" id="a-eng-filter" onchange="filterATable(document.getElementById('a-srch').value)"><option value="">All Engineers</option></select>
+              <div class="srch-wrap" style="flex:1">
+                <div class="srch-row">
+                  <div class="srch">
+                    <span class="srch-ico">🔍</span>
+                    <input type="text" placeholder="Search ID, customer, device, serial, phone, notes…" id="a-srch"
+                      oninput="onASearch(this.value)" autocomplete="off">
+                    <button class="srch-clear" id="a-srch-clear" onclick="clearASearch()" title="Clear">✕</button>
+                  </div>
+                  <select class="fsel" id="a-status-filter" onchange="filterATable()"><option value="">All Status</option><option>Received</option><option>Diagnosed</option><option>In Progress</option><option>Awaiting Parts</option><option>Ready</option><option>Dispatched</option><option>Cancelled</option></select>
+                  <select class="fsel" id="a-eng-filter" onchange="filterATable()"><option value="">All Engineers</option></select>
+                  <span class="srch-count" id="a-srch-count"></span>
+                </div>
+                <div class="srch-chips" id="a-srch-chips"></div>
+              </div>
             </div>
             <table><thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Engineer</th><th>Intake</th><th>Dispatch</th><th>Last Activity</th><th>Priority</th><th>Status</th><th>Cost</th><th>Actions</th></tr></thead>
             <tbody id="a-tbl-body"></tbody></table>
@@ -845,7 +935,11 @@ tr:hover td{background:rgba(255,255,255,0.015);}
             <button class="btn btn-primary" onclick="openAddUserModal()">+ Add User</button></div>
           <div class="tbl-wrap">
             <div class="tbl-bar"><div class="tbl-title">All Users</div>
-              <div class="srch"><span class="srch-ico">🔍</span><input type="text" placeholder="Search users…" oninput="filterUTable(this.value)" id="u-srch"></div>
+              <div class="srch">
+                <span class="srch-ico">🔍</span>
+                <input type="text" placeholder="Search name, email, phone, role…" oninput="onUSearch(this.value)" id="u-srch" autocomplete="off">
+                <button class="srch-clear" id="u-srch-clear" onclick="clearUSearch()" title="Clear">✕</button>
+              </div>
               <select class="fsel" id="u-role-filter" onchange="filterUTable(document.getElementById('u-srch').value)"><option value="">All Roles</option><option>Admin</option><option>Engineer</option><option>Customer</option></select>
               <select class="fsel" id="u-status-filter" onchange="filterUTable(document.getElementById('u-srch').value)"><option value="">All Status</option><option>Active</option><option>Inactive</option><option>On Leave</option></select>
             </div>
@@ -903,11 +997,23 @@ tr:hover td{background:rgba(255,255,255,0.015);}
           </div>
           <div class="block"><div class="block-title">🎨 Branding</div>
             <div class="fr">
-              <div class="fg"><label>Portal Name</label><input type="text" id="b-name" value="Reparo"></div>
-              <div class="fg"><label>Support Phone</label><input type="text" id="b-phone" value="+971 4 000 0000"></div>
+              <div class="fg"><label>Portal Name</label><input type="text" id="b-name" placeholder="Reparo"></div>
+              <div class="fg"><label>Nav Bar Text <span style="font-size:11px;color:var(--text3)">(overrides Portal Name in nav)</span></label><input type="text" id="b-nav-text" placeholder="Leave blank to use Portal Name"></div>
             </div>
-            <div class="fg"><label>Support Email</label><input type="email" id="b-email" value="support@reparo.com"></div>
-            <div class="fg"><label>Tagline</label><input type="text" id="b-tagline" value="Intelligent Device Service Management"></div>
+            <div class="fg" style="margin-bottom:6px"><label>Logo Image</label>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <div id="b-logo-preview" style="width:42px;height:42px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden">⚡</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="file" id="b-logo-file" accept="image/*" onchange="onLogoFileChange()" style="font-size:12px">
+                  <button class="btn btn-ghost btn-xs" onclick="removeLogo()">✕ Remove logo</button>
+                </div>
+              </div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Support Phone</label><input type="text" id="b-phone" placeholder="+971 4 000 0000"></div>
+              <div class="fg"><label>Support Email</label><input type="email" id="b-email" placeholder="support@reparo.com"></div>
+            </div>
+            <div class="fg"><label>Tagline</label><input type="text" id="b-tagline" placeholder="Intelligent Device Service Management"></div>
             <button class="btn btn-primary btn-sm" onclick="saveBranding()">Save Branding</button>
           </div>
           <div class="block"><div class="block-title">🗄️ Data & Storage</div>
@@ -1107,7 +1213,7 @@ async function doLogin(portal){
   else if(portal==='engineer'){ email=document.getElementById('e-user').value; password=document.getElementById('e-pass').value; }
   else { email=document.getElementById('a-email').value; password=document.getElementById('a-pass').value;
     const code=document.getElementById('a-2fa').value;
-    if(code&&code!=='123456'){toast('error','Invalid 2FA code (demo: 123456)');return;}
+    if(code&&code!=='123456'){toast('error','Invalid 2FA code');return;}
   }
   if(!email||!password){toast('error','Please enter credentials');return;}
   await performLogin(email, password, portal);
@@ -1225,7 +1331,9 @@ async function loadCTable(search='', status=''){
   try{
     let qs=''; if(search) qs+=`&search=${encodeURIComponent(search)}`; if(status) qs+=`&status=${encodeURIComponent(status)}`;
     const services = await GET('/services?'+qs);
-    document.getElementById('c-tbl-body').innerHTML=services.length?services.map(cRow).join(''):`<tr><td colspan="8" class="empty-row">No requests found. <button class="btn btn-primary btn-sm" onclick="cNav('new')">Submit one →</button></td></tr>`;
+    const cRows=services.length?services.map(cRow).join(''):`<tr><td colspan="8" class="empty-row">No requests found. <button class="btn btn-primary btn-sm" onclick="cNav('new')">Submit one →</button></td></tr>`;
+    document.getElementById('c-tbl-body').innerHTML=cRows;
+    updateCount('c-srch-count', services.length, undefined);
   } catch(e){ err('c-tbl-body',e.message); }
 }
 function cRow(s){return `<tr>
@@ -1264,47 +1372,140 @@ async function submitCustRequest(){
   } catch(e){ toast('error',e.message); }
 }
 
-async function doTrack(){ renderTrack(document.getElementById('c-track-id').value.trim(),'c-track-result'); }
+async function doTrack(){ await smartTrack(document.getElementById('c-track-id').value.trim(), 'c-track-result', document.getElementById('c-track-verify')?.value.trim()||''); }
+async function doPublicTrack(){ await smartTrack(document.getElementById('pub-track-id').value.trim(), 'pub-track-result', document.getElementById('pub-track-verify')?.value.trim()||''); }
 function showTrackPublic(){ document.getElementById('c-auth').classList.add('hidden'); document.getElementById('c-public-track').classList.remove('hidden'); }
 function backToLogin(){ document.getElementById('c-public-track').classList.add('hidden'); document.getElementById('c-auth').classList.remove('hidden'); }
-async function doPublicTrack(){ renderTrack(document.getElementById('pub-track-id').value.trim(),'pub-track-result'); }
 
-async function renderTrack(id, targetId){
-  const el=document.getElementById(targetId);
-  if(!id){el.innerHTML='<div class="alert alert-warning">Please enter a request ID</div>';return;}
-  el.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3)">🔍 Looking up '+id+'…</div>';
-  try{
-    const s = await GET('/services/track/'+id);
-    const steps=['Received','Diagnosed','In Progress','Ready','Dispatched'];
-    const ci=steps.indexOf(s.status);
-    el.innerHTML=`<div class="track-result">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-        <div class="tr-id">${s.id}</div> ${statusBdg(s.status)} ${priBdg(s.priority)}
-      </div>
-      <div class="stepper">${steps.map((st,i)=>`<div class="step ${i<ci?'done':i===ci?'active':''}">
-        <div class="step-line"></div><div class="step-dot">${i<ci?'✓':i+1}</div><div class="step-lbl">${st}</div>
-      </div>`).join('')}</div>
-      <div class="tr-grid">
-        <div class="tr-field"><div class="tr-fl">Device</div><div class="tr-fv">${s.brand} ${s.model}</div></div>
-        <div class="tr-field"><div class="tr-fl">Issue</div><div class="tr-fv">${s.issue_cat}</div></div>
-        <div class="tr-field"><div class="tr-fl">Intake Date</div><div class="tr-fv mono">${fmtD(s.created_at)}</div></div>
-        <div class="tr-field"><div class="tr-fl">Est. Completion</div><div class="tr-fv mono">${fmtD(s.eta)}</div></div>
-        <div class="tr-field"><div class="tr-fl">Engineer</div><div class="tr-fv">${s.engineer_name||'Pending'}</div></div>
-        <div class="tr-field"><div class="tr-fl">Last Update</div><div class="tr-fv mono">${fmtDT(s.last_activity)}</div></div>
-        ${s.cost?`<div class="tr-field"><div class="tr-fl">Estimated Cost</div><div class="tr-fv mono">AED ${s.cost}</div></div>`:''}
-        ${s.notes?`<div class="tr-field" style="grid-column:1/-1"><div class="tr-fl">Latest Note</div><div class="tr-fv">${s.notes}</div></div>`:''}
-      </div>
-      ${s.status==='Ready'?'<div class="alert alert-success">🎉 Your device is ready for pickup!</div>':''}
-      ${s.status==='Dispatched'?'<div class="alert alert-info">📦 Device dispatched. Thank you!</div>':''}
-      ${s.status==='Awaiting Parts'?'<div class="alert alert-warning">⏳ Waiting for parts to arrive.</div>':''}
-      <div class="tl mt3">${(s.activities||[]).map(a=>`<div class="tl-item done">
-        <div class="tl-date">${fmtDT(a.created_at)}</div>
-        <div class="tl-text">${a.text}</div>
-        <div class="tl-sub">By ${a.by_user||'System'}</div>
-      </div>`).join('')}</div>
-    </div>`;
-  } catch(e){ el.innerHTML=`<div class="alert alert-danger">❌ ${e.message}</div>`; }
+// Update hint chip active state as user types
+function onTrackInput(inputId, hintId, verifyRowId) {
+  const v = document.getElementById(inputId).value;
+  const hint = document.getElementById(hintId);
+  const verifyRow = verifyRowId ? document.getElementById(verifyRowId) : null;
+  if (!hint) return;
+  const chips = hint.querySelectorAll('.track-hint-chip');
+  chips.forEach(c => { c.style.color = ''; c.style.borderColor = ''; });
+  const isId = /^RPR-/i.test(v);
+  if (isId) {
+    chips[0].style.color = 'var(--accent)'; chips[0].style.borderColor = 'var(--accent)';
+  } else if (/^[+\d]/.test(v)) {
+    chips[1].style.color = 'var(--accent)'; chips[1].style.borderColor = 'var(--accent)';
+  } else if (v.includes('@')) {
+    chips[2].style.color = 'var(--accent)'; chips[2].style.borderColor = 'var(--accent)';
+  }
+  // Show verify field only when searching by ID
+  if (verifyRow) verifyRow.classList.toggle('hidden', !isId);
 }
+
+// Smart track — detects query type, calls right endpoint, renders list or detail
+async function smartTrack(q, targetId, verify='') {
+  const el = document.getElementById(targetId);
+  if (!q || q.length < 2) {
+    el.innerHTML = '<div class="alert alert-warning">Please enter a request ID, phone number, or email address.</div>';
+    return;
+  }
+  el.innerHTML = '<div style="text-align:center;padding:28px;color:var(--text3);font-size:14px">🔍 Searching…</div>';
+  try {
+    let qs = '/services/track/search?q=' + encodeURIComponent(q);
+    if (verify) qs += '&verify=' + encodeURIComponent(verify);
+    const data = await GET(qs);
+
+    if (data.count === 0) {
+      el.innerHTML = `<div class="alert alert-danger">
+        ❌ No service request found. Check your details and try again.<br>
+        <span style="font-size:12px;margin-top:4px;display:block">Use your full email, full phone number, or request ID + last 4 digits of your phone.</span>
+      </div>`;
+      return;
+    }
+
+    if (data.count === 1) {
+      // Single result — show full detail
+      renderTrackDetail(data.results[0], el);
+      return;
+    }
+
+    // Multiple results — show a list to pick from
+    el.innerHTML = `
+      <div class="track-results-count">Found <strong>${data.count}</strong> service request${data.count > 1 ? 's' : ''} — tap one to see details</div>
+      <div class="track-results-list">
+        ${data.results.map(s => `
+          <div class="track-match-card" onclick="expandTrackResult('${s.id}', this, '${targetId}')">
+            <div class="track-match-header">
+              <span class="track-match-id">${s.id}</span>
+              ${statusBdg(s.status)}
+              ${priBdg(s.priority)}
+            </div>
+            <div class="track-match-meta">
+              <div class="track-match-meta-item"><strong>${s.brand} ${s.model}</strong>Device</div>
+              <div class="track-match-meta-item"><strong>${s.issue_cat}</strong>Issue</div>
+              <div class="track-match-meta-item"><strong>${fmtD(s.created_at)}</strong>Intake</div>
+              <div class="track-match-meta-item"><strong>${fmtD(s.eta)}</strong>Est. completion</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    el.innerHTML = `<div class="alert alert-danger">❌ ${escHtml(e.message)}</div>`;
+  }
+}
+
+// Expand a card from the list into full detail
+async function expandTrackResult(id, cardEl, targetId) {
+  const el = document.getElementById(targetId);
+  // Mark card selected
+  cardEl.closest('.track-results-list')?.querySelectorAll('.track-match-card').forEach(c => c.classList.remove('selected'));
+  cardEl.classList.add('selected');
+  // Scroll detail below the list
+  let detailEl = document.getElementById('track-detail-' + targetId);
+  if (!detailEl) {
+    detailEl = document.createElement('div');
+    detailEl.id = 'track-detail-' + targetId;
+    detailEl.style.marginTop = '16px';
+    el.appendChild(detailEl);
+  }
+  detailEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">Loading details…</div>';
+  detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  try {
+    const s = await GET('/services/track/' + id);
+    renderTrackDetail(s, detailEl);
+  } catch(e) {
+    detailEl.innerHTML = `<div class="alert alert-danger">❌ ${escHtml(e.message)}</div>`;
+  }
+}
+
+// Render a full service detail card
+function renderTrackDetail(s, el) {
+  const steps = ['Received','Diagnosed','In Progress','Ready','Dispatched'];
+  const ci = steps.indexOf(s.status);
+  el.innerHTML = `<div class="track-result">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div class="tr-id">${s.id}</div> ${statusBdg(s.status)} ${priBdg(s.priority)}
+    </div>
+    <div class="stepper">${steps.map((st,i) => `<div class="step ${i<ci?'done':i===ci?'active':''}">
+      <div class="step-line"></div><div class="step-dot">${i<ci?'✓':i+1}</div><div class="step-lbl">${st}</div>
+    </div>`).join('')}</div>
+    <div class="tr-grid">
+      <div class="tr-field"><div class="tr-fl">Device</div><div class="tr-fv">${s.brand} ${s.model}</div></div>
+      <div class="tr-field"><div class="tr-fl">Issue</div><div class="tr-fv">${s.issue_cat}</div></div>
+      <div class="tr-field"><div class="tr-fl">Intake Date</div><div class="tr-fv mono">${fmtD(s.created_at)}</div></div>
+      <div class="tr-field"><div class="tr-fl">Est. Completion</div><div class="tr-fv mono">${fmtD(s.eta)}</div></div>
+      <div class="tr-field"><div class="tr-fl">Engineer</div><div class="tr-fv">${s.engineer_name||'Pending'}</div></div>
+      <div class="tr-field"><div class="tr-fl">Last Update</div><div class="tr-fv mono">${fmtDT(s.last_activity)}</div></div>
+      ${s.cost ? `<div class="tr-field"><div class="tr-fl">Estimated Cost</div><div class="tr-fv mono">AED ${s.cost}</div></div>` : ''}
+      ${s.notes ? `<div class="tr-field" style="grid-column:1/-1"><div class="tr-fl">Latest Note</div><div class="tr-fv">${escHtml(s.notes)}</div></div>` : ''}
+    </div>
+    ${s.status==='Ready'    ? '<div class="alert alert-success">🎉 Your device is ready for pickup! Please bring a valid ID.</div>' : ''}
+    ${s.status==='Dispatched'?'<div class="alert alert-info">📦 Device dispatched. Thank you for choosing Reparo!</div>' : ''}
+    ${s.status==='Awaiting Parts'?'<div class="alert alert-warning">⏳ Waiting for parts. We\'ll notify you when ready.</div>' : ''}
+    <div class="tl mt3">${(s.activities||[]).map(a => `<div class="tl-item done">
+      <div class="tl-date">${fmtDT(a.created_at)}</div>
+      <div class="tl-text">${escHtml(a.text)}</div>
+      <div class="tl-sub">By ${escHtml(a.by_user||'System')}</div>
+    </div>`).join('')}</div>
+  </div>`;
+}
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 
 // ══════════════════════════════════════════════════
 // ENGINEER PORTAL
@@ -1419,7 +1620,9 @@ async function loadETable(){
   try{
     let qs=''; if(v) qs+=`&search=${encodeURIComponent(v)}`; if(sf) qs+=`&status=${sf}`; if(pf) qs+=`&priority=${pf}`;
     const services = await GET('/services?'+qs);
-    document.getElementById('e-tbl-body').innerHTML=services.length?services.map(eRow).join(''):`<tr><td colspan="12" class="empty-row">No results.</td></tr>`;
+    const eRows=services.length?services.map(eRow).join(''):`<tr><td colspan="12" class="empty-row">No results found.</td></tr>`;
+  document.getElementById('e-tbl-body').innerHTML=eRows;
+  updateCount('e-srch-count', services.length, undefined);
   } catch(e){ err('e-tbl-body',e.message); }
 }
 function filterETable(){ loadETable(); }
@@ -1631,7 +1834,9 @@ async function loadATable(){
   try{
     let qs=''; if(v) qs+=`&search=${encodeURIComponent(v)}`; if(sf) qs+=`&status=${sf}`; if(ef) qs+=`&engineer_id=${ef}`;
     const services = await GET('/services?'+qs);
-    document.getElementById('a-tbl-body').innerHTML=services.length?services.map(aRow).join(''):`<tr><td colspan="11" class="empty-row">No results.</td></tr>`;
+    const aRows=services.length?services.map(aRow).join(''):`<tr><td colspan="11" class="empty-row">No results found.</td></tr>`;
+  document.getElementById('a-tbl-body').innerHTML=aRows;
+  updateCount('a-srch-count', services.length, undefined);
   } catch(e){ err('a-tbl-body',e.message); }
 }
 function filterATable(){ loadATable(); }
@@ -1837,10 +2042,17 @@ function addDeviceType(){
 async function loadSettings(){
   try{
     const s = await GET('/settings');
-    if(document.getElementById('b-name'))    document.getElementById('b-name').value    = s.portal_name||'';
-    if(document.getElementById('b-phone'))   document.getElementById('b-phone').value   = s.support_phone||'';
-    if(document.getElementById('b-email'))   document.getElementById('b-email').value   = s.support_email||'';
-    if(document.getElementById('b-tagline')) document.getElementById('b-tagline').value = s.tagline||'';
+    if(document.getElementById('b-name'))     document.getElementById('b-name').value     = s.portal_name||'';
+    if(document.getElementById('b-nav-text')) document.getElementById('b-nav-text').value = s.nav_brand_text||'';
+    if(document.getElementById('b-phone'))    document.getElementById('b-phone').value    = s.support_phone||'';
+    if(document.getElementById('b-email'))    document.getElementById('b-email').value    = s.support_email||'';
+    if(document.getElementById('b-tagline'))  document.getElementById('b-tagline').value  = s.tagline||'';
+    // Show logo preview
+    const prev = document.getElementById('b-logo-preview');
+    if(prev) prev.innerHTML = s.portal_logo
+      ? `<img src="${s.portal_logo}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`
+      : '⚡';
+    applyBranding(s);
     renderNotifSettings(s);
     renderSecSettings(s);
     loadAuditLog();
@@ -1876,10 +2088,42 @@ async function saveNotifSettings(){
   } catch(e){ toast('error',e.message); }
 }
 
+function onLogoFileChange(){
+  const file = document.getElementById('b-logo-file').files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result;
+    const prev = document.getElementById('b-logo-preview');
+    if(prev) prev.innerHTML = `<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
+    // store temporarily so saveBranding can read it
+    document.getElementById('b-logo-file').dataset.b64 = b64;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo(){
+  document.getElementById('b-logo-file').value = '';
+  document.getElementById('b-logo-file').dataset.b64 = '';
+  const prev = document.getElementById('b-logo-preview');
+  if(prev) prev.innerHTML = '⚡';
+}
+
 async function saveBranding(){
   try{
-    await PUT('/settings',{portal_name:document.getElementById('b-name').value,support_phone:document.getElementById('b-phone').value,support_email:document.getElementById('b-email').value,tagline:document.getElementById('b-tagline').value});
-    toast('success','✅ Branding saved to database');
+    const logoEl = document.getElementById('b-logo-file');
+    const logoVal = logoEl?.dataset.b64 !== undefined ? logoEl.dataset.b64 : undefined;
+    const body = {
+      portal_name:   document.getElementById('b-name').value,
+      nav_brand_text:document.getElementById('b-nav-text').value,
+      support_phone: document.getElementById('b-phone').value,
+      support_email: document.getElementById('b-email').value,
+      tagline:       document.getElementById('b-tagline').value,
+    };
+    if(logoVal !== undefined) body.portal_logo = logoVal;
+    await PUT('/settings', body);
+    applyBranding(body);
+    toast('success','✅ Branding saved');
   } catch(e){ toast('error',e.message); }
 }
 
@@ -2138,6 +2382,151 @@ document.addEventListener('click', ()=>{
   buildThemePanel();
   applyTheme(saved, false);
 })();
+
+
+// ══════════════════════════════════════════════════
+// ENHANCED MULTI-FIELD SEARCH
+// ══════════════════════════════════════════════════
+
+// Detect which fields are being hinted at by the query
+function parseSearchChips(q) {
+  if (!q || q.trim().length < 2) return [];
+  const chips = [];
+  const lower = q.toLowerCase();
+  if (/^rpr-/i.test(q))                          chips.push('Service ID');
+  if (/^\+?\d[\d\s-]{6,}/.test(q))             chips.push('Phone');
+  if (/@/.test(q))                                chips.push('Email');
+  if (/\b(sn|imei|serial)\b/i.test(q) || /^\d{10,}$/.test(q)) chips.push('Serial / IMEI');
+  if (/\b(screen|battery|charging|camera|keyboard|software|water|damage|speaker|connectivity)\b/i.test(q)) chips.push('Issue type');
+  if (/\b(apple|samsung|dell|hp|lenovo|sony|huawei|xiaomi)\b/i.test(q)) chips.push('Brand');
+  if (/\b(iphone|macbook|galaxy|xps|spectre|thinkcentre|playstation|ipad)\b/i.test(q)) chips.push('Model');
+  if (/\b(eng\.|engineer|mohammed|sara|khalid|rania)\b/i.test(q)) chips.push('Engineer');
+  if (chips.length === 0) chips.push('Name / ID / Device');
+  return chips;
+}
+
+function renderChips(chipsId, q) {
+  const el = document.getElementById(chipsId);
+  if (!el) return;
+  const chips = parseSearchChips(q);
+  el.innerHTML = q
+    ? chips.map(c => `<span class="srch-chip">🔍 ${c}</span>`).join('')
+    : '';
+}
+
+function updateCount(countId, n, total) {
+  const el = document.getElementById(countId);
+  if (!el) return;
+  el.textContent = (n !== undefined && n !== total) ? `${n} result${n===1?'':'s'}` : '';
+}
+
+// Debounce helper
+const _debounceTimers = {};
+function debounce(key, fn, ms=300) {
+  clearTimeout(_debounceTimers[key]);
+  _debounceTimers[key] = setTimeout(fn, ms);
+}
+
+// ── ENGINEER SEARCH ──
+function onESearch(v) {
+  const clear = document.getElementById('e-srch-clear');
+  if (clear) clear.classList.toggle('visible', v.length > 0);
+  renderChips('e-srch-chips', v);
+  debounce('eSearch', () => loadETable(), 300);
+}
+function clearESearch() {
+  const inp = document.getElementById('e-srch');
+  if (inp) { inp.value = ''; inp.focus(); }
+  const clear = document.getElementById('e-srch-clear');
+  if (clear) clear.classList.remove('visible');
+  document.getElementById('e-srch-chips').innerHTML = '';
+  document.getElementById('e-srch-count').textContent = '';
+  loadETable();
+}
+
+// ── ADMIN SERVICES SEARCH ──
+function onASearch(v) {
+  const clear = document.getElementById('a-srch-clear');
+  if (clear) clear.classList.toggle('visible', v.length > 0);
+  renderChips('a-srch-chips', v);
+  debounce('aSearch', () => loadATable(), 300);
+}
+function clearASearch() {
+  const inp = document.getElementById('a-srch');
+  if (inp) { inp.value = ''; inp.focus(); }
+  const clear = document.getElementById('a-srch-clear');
+  if (clear) clear.classList.remove('visible');
+  document.getElementById('a-srch-chips').innerHTML = '';
+  document.getElementById('a-srch-count').textContent = '';
+  loadATable();
+}
+
+// ── CUSTOMER SEARCH ──
+function onCSearch(v) {
+  const clear = document.getElementById('c-srch-clear');
+  if (clear) clear.classList.toggle('visible', v.length > 0);
+  renderChips('c-srch-chips', v);
+  debounce('cSearch', () => loadCTable(v, document.getElementById('c-status-fsel')?.value||''), 300);
+}
+function clearCSearch() {
+  const inp = document.getElementById('c-srch');
+  if (inp) { inp.value = ''; inp.focus(); }
+  const clear = document.getElementById('c-srch-clear');
+  if (clear) clear.classList.remove('visible');
+  document.getElementById('c-srch-chips').innerHTML = '';
+  document.getElementById('c-srch-count').textContent = '';
+  loadCTable('', document.getElementById('c-status-fsel')?.value||'');
+}
+function filterCStatus(v) {
+  loadCTable(document.getElementById('c-srch')?.value||'', v);
+}
+
+// ── DEMO MODE (Ctrl+Shift+D) ──
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    const ids = ['demo-hints-customer', 'demo-hints-engineer', 'demo-hints-admin'];
+    const anyVisible = ids.some(id => !document.getElementById(id)?.classList.contains('hidden'));
+    ids.forEach(id => document.getElementById(id)?.classList.toggle('hidden', anyVisible));
+    if (!anyVisible) toast('info', '🔓 Demo mode — credentials visible');
+  }
+});
+
+// ── BRANDING ──
+function applyBranding(s){
+  const name    = s.nav_brand_text || s.portal_name || 'Reparo';
+  const logoEl  = document.getElementById('nav-logo-icon');
+  const textEl  = document.getElementById('nav-logo-text');
+  if(logoEl){
+    if(s.portal_logo){
+      logoEl.innerHTML = `<img src="${s.portal_logo}" style="width:100%;height:100%;object-fit:cover;border-radius:7px">`;
+    } else {
+      logoEl.textContent = '⚡';
+    }
+  }
+  if(textEl) textEl.textContent = name;
+}
+
+// Auto-apply branding on load (public — no auth needed)
+(async function initBranding(){
+  try{
+    const s = await GET('/branding');
+    applyBranding(s);
+  } catch(e){}
+})();
+
+// ── USER SEARCH ──
+function onUSearch(v) {
+  const clear = document.getElementById('u-srch-clear');
+  if (clear) clear.classList.toggle('visible', v.length > 0);
+  debounce('uSearch', () => loadUTable(), 300);
+}
+function clearUSearch() {
+  const inp = document.getElementById('u-srch');
+  if (inp) { inp.value = ''; inp.focus(); }
+  const clear = document.getElementById('u-srch-clear');
+  if (clear) clear.classList.remove('visible');
+  loadUTable();
+}
 
 </script>
 </body>

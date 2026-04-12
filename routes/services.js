@@ -1,8 +1,39 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
+const rateLimit = require('express-rate-limit');
 const db = require('../db/setup');
 const { auth } = require('../middleware/auth');
+const { sendStatusNotification } = require('../utils/mailer');
 const router = express.Router();
+
+// ── Public tracking rate limiter: 20 requests per 15 minutes per IP ──────────
+const trackLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many tracking requests. Please wait a few minutes and try again.' },
+  keyGenerator: req => req.ip,
+});
+
+// ── Fields safe to expose publicly (no cost, no notes, no customer phone) ────
+const PUBLIC_COLS = 'id,cust_name,device_type,brand,model,issue_cat,priority,status,eta,dispatch_at,last_activity,created_at,engineer_name';
+
+// ── Normalise phone for comparison (strip spaces, dashes, +) ─────────────────
+const normPhone = p => (p || '').replace(/[\s\-+()]/g, '');
+
+// ── Verify the caller knows the customer's phone or email ─────────────────────
+// Returns true if `verify` matches last-4 of phone OR full email (case-insensitive)
+function verifyOwnership(svc, verify) {
+  if (!verify) return false;
+  const v = verify.trim().toLowerCase();
+  // Email match
+  if (v.includes('@') && svc.cust_email && svc.cust_email.toLowerCase() === v) return true;
+  // Last-4 of phone
+  const phone4 = normPhone(svc.cust_phone).slice(-4);
+  if (/^\d{4}$/.test(v) && phone4 && phone4 === v) return true;
+  return false;
+}
 
 // helper: attach activities to a service row
 function withActivities(svc) {
@@ -26,9 +57,26 @@ router.get('/', auth(), (req, res) => {
   if (priority)    { where.push('s.priority = ?');    params.push(priority); }
   if (engineer_id) { where.push('s.engineer_id = ?'); params.push(engineer_id); }
   if (search) {
-    where.push('(s.id LIKE ? OR s.cust_name LIKE ? OR s.model LIKE ? OR s.issue_cat LIKE ?)');
+    // Search across all meaningful service fields
+    where.push(`(
+      s.id          LIKE ? OR
+      s.cust_name   LIKE ? OR
+      s.cust_phone  LIKE ? OR
+      s.cust_email  LIKE ? OR
+      s.brand       LIKE ? OR
+      s.model       LIKE ? OR
+      s.device_type LIKE ? OR
+      s.serial      LIKE ? OR
+      s.imei        LIKE ? OR
+      s.issue_cat   LIKE ? OR
+      s.issue_desc  LIKE ? OR
+      s.diagnosis   LIKE ? OR
+      s.engineer_name LIKE ? OR
+      s.notes       LIKE ? OR
+      s.accessories LIKE ?
+    )`);
     const like = `%${search}%`;
-    params.push(like, like, like, like);
+    params.push(like, like, like, like, like, like, like, like, like, like, like, like, like, like, like);
   }
 
   const whereStr = where.length ? 'WHERE ' + where.join(' AND ') : '';
@@ -47,12 +95,98 @@ router.get('/:id', auth(), (req, res) => {
   res.json(withActivities(svc));
 });
 
-// ── GET /api/services/track/:id  (public — no auth needed) ──
-router.get('/track/:id', (req, res) => {
-  const svc = db.prepare('SELECT id,cust_name,device_type,brand,model,issue_cat,priority,status,eta,dispatch_at,last_activity,created_at,engineer_name,cost,notes FROM services WHERE id = ?').get(req.params.id);
-  if (!svc) return res.status(404).json({ error: 'Service not found' });
-  const activities = db.prepare('SELECT text,type,by_user,created_at FROM service_activity WHERE service_id = ? ORDER BY created_at ASC').all(req.params.id);
-  res.json({ ...svc, activities });
+// ── GET /api/services/track/search  (public, rate-limited) ───────────────────
+// Requires: ?q= (full email OR full phone ≥8 digits)
+// ID lookups additionally require ?verify= (last-4 of phone OR full email)
+// Never leaks cost, notes, or cust_phone.
+router.get('/track/search', trackLimiter, (req, res) => {
+  const q      = (req.query.q      || '').trim();
+  const verify = (req.query.verify || '').trim();
+
+  if (!q || q.length < 3)
+    return res.status(400).json({ error: 'Enter at least 3 characters' });
+
+  // Log to audit trail (IP-level, no PII stored)
+  try {
+    db.prepare('INSERT INTO audit_log(action,user_email,ip) VALUES(?,?,?)')
+      .run(`Public track search`, 'public', req.ip);
+  } catch {}
+
+  const BLIND_ERROR = { error: 'No service request found. Check your details and try again.' };
+  let rows = [];
+
+  // ── Case 1: Looks like a service ID (RPR-XXXX) ──────────────────────────────
+  if (/^RPR-\d+$/i.test(q)) {
+    // ID lookup always requires ownership verification
+    if (!verify)
+      return res.status(400).json({ error: 'Please also enter the last 4 digits of your phone number, or your email address.' });
+
+    const svc = db.prepare(`SELECT ${PUBLIC_COLS},cust_email,cust_phone FROM services WHERE UPPER(id)=UPPER(?)`).get(q);
+    // Blind: same error whether ID not found OR verification wrong
+    if (!svc || !verifyOwnership(svc, verify))
+      return res.status(404).json(BLIND_ERROR);
+
+    rows = [svc];
+  }
+
+  // ── Case 2: Full email ───────────────────────────────────────────────────────
+  else if (q.includes('@')) {
+    rows = db.prepare(`SELECT ${PUBLIC_COLS} FROM services WHERE LOWER(cust_email)=LOWER(?)`).all(q);
+  }
+
+  // ── Case 3: Phone number (≥8 digits after stripping) ────────────────────────
+  else if (/^[\d+\s\-()]{8,}$/.test(q)) {
+    const norm = normPhone(q);
+    rows = db.prepare(`SELECT ${PUBLIC_COLS} FROM services WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(cust_phone,' ',''),'-',''),'+',''),'(',''),')','')=?`).all(norm);
+  }
+
+  // ── Anything else: reject (no partial/wildcard searches) ────────────────────
+  else {
+    return res.status(400).json({ error: 'Enter your full email address, full phone number, or service ID (RPR-XXXX).' });
+  }
+
+  if (rows.length === 0) return res.status(404).json(BLIND_ERROR);
+
+  // Cap results & strip any lingering sensitive columns
+  const safe = rows.slice(0, 5).map(({ cust_email, cust_phone, cost, notes, ...rest }) => rest);
+
+  // Attach activities (public-safe fields only) for single result
+  if (safe.length === 1) {
+    safe[0].activities = db.prepare(
+      'SELECT text,type,created_at FROM service_activity WHERE service_id=? ORDER BY created_at ASC'
+    ).all(safe[0].id);
+  }
+
+  res.json({ results: safe, count: safe.length });
+});
+
+// ── GET /api/services/track/:id  (public, rate-limited) ──────────────────────
+// Requires ?verify= (last-4 of phone OR full email). Blind on failure.
+router.get('/track/:id', trackLimiter, (req, res) => {
+  const verify = (req.query.verify || '').trim();
+
+  if (!verify)
+    return res.status(400).json({ error: 'Please provide the last 4 digits of your phone number, or your email address.' });
+
+  try {
+    db.prepare('INSERT INTO audit_log(action,user_email,ip) VALUES(?,?,?)')
+      .run(`Public track by ID: ${req.params.id}`, 'public', req.ip);
+  } catch {}
+
+  const svc = db.prepare(
+    `SELECT ${PUBLIC_COLS},cust_email,cust_phone FROM services WHERE id=?`
+  ).get(req.params.id);
+
+  // Blind: identical response whether not found or wrong verify
+  if (!svc || !verifyOwnership(svc, verify))
+    return res.status(404).json({ error: 'No service request found. Check your details and try again.' });
+
+  const activities = db.prepare(
+    'SELECT text,type,created_at FROM service_activity WHERE service_id=? ORDER BY created_at ASC'
+  ).all(req.params.id);
+
+  const { cust_email, cust_phone, ...publicSvc } = svc;
+  res.json({ ...publicSvc, activities });
 });
 
 // ── POST /api/services  (Customer or Engineer) ──
@@ -117,6 +251,9 @@ router.patch('/:id', auth(['Engineer','Admin']), (req, res) => {
     db.prepare('INSERT INTO service_activity(service_id,text,type,by_user) VALUES(?,?,?,?)')
       .run(svc.id, `Status changed from ${svc.status} to ${status}`, 'status_change', req.user.name);
     changes.push(`status → ${status}`);
+    // Fire-and-forget email notification to customer
+    const updatedSvc = db.prepare('SELECT * FROM services WHERE id=?').get(svc.id);
+    sendStatusNotification(updatedSvc, status).catch(e => console.error('Email notification failed:', e.message));
   }
   if (cost !== undefined && Number(cost) !== svc.cost) {
     db.prepare('UPDATE services SET cost=? WHERE id=?').run(Number(cost), svc.id);

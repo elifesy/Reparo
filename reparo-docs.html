@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reparo — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0a0c10;
+  --bg2:      #0f1217;
+  --bg3:      #141920;
+  --bg4:      #1a2030;
+  --border:   #1e2535;
+  --border2:  #2a3448;
+  --accent:   #f59e0b;
+  --accent2:  #fbbf24;
+  --accent-d: rgba(245,158,11,0.1);
+  --blue:     #3b82f6;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --purple:   #8b5cf6;
+  --orange:   #f97316;
+  --text:     #e2e8f0;
+  --text2:    #94a3b8;
+  --text3:    #4e5f7a;
+  --sb-w:     260px;
+  --toc-w:    200px;
+  --hdr-h:    56px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(245,158,11,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,158,11,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* TOP HEADER */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--hdr-h); z-index: 100;
+  background: rgba(10,12,16,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 20px;
+}
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.logo-icon { width: 30px; height: 30px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.logo-text { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
+.logo-text b { color: var(--accent); }
+.logo-ver { font-size: 11px; background: var(--bg4); border: 1px solid var(--border2); color: var(--text3); padding: 2px 7px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 400; }
+.topbar-search {
+  flex: 1; max-width: 360px; margin-left: auto;
+  position: relative;
+}
+.topbar-search input {
+  width: 100%; padding: 7px 12px 7px 36px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+  transition: border-color .15s;
+}
+.topbar-search input:focus { border-color: var(--accent); }
+.topbar-search input::placeholder { color: var(--text3); }
+.search-ico { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; pointer-events: none; }
+.topbar-links { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.topbar-links a { font-size: 13px; color: var(--text2); text-decoration: none; transition: color .15s; }
+.topbar-links a:hover { color: var(--accent); }
+.btn-demo { padding: 6px 14px; background: var(--accent); color: #000; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s; }
+.btn-demo:hover { background: var(--accent2); transform: translateY(-1px); color: #000 !important; }
+
+/* LAYOUT */
+.page { display: flex; padding-top: var(--hdr-h); min-height: 100vh; position: relative; z-index: 1; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sb-w); flex-shrink: 0;
+  position: fixed; top: var(--hdr-h); bottom: 0; left: 0;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 0;
+}
+.sb-group { margin-bottom: 6px; }
+.sb-group-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--text3); padding: 10px 20px 4px;
+}
+.sb-link {
+  display: flex; align-items: center; gap: 8px; padding: 7px 20px;
+  color: var(--text2); font-size: 13px; font-weight: 400;
+  text-decoration: none; transition: all .1s;
+  border-left: 2px solid transparent; cursor: pointer;
+}
+.sb-link:hover { color: var(--text); background: var(--bg3); }
+.sb-link.active { color: var(--accent); background: var(--accent-d); border-left-color: var(--accent); font-weight: 500; }
+.sb-link.sub { padding-left: 32px; font-size: 12px; }
+.sb-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+/* MAIN CONTENT */
+.main { margin-left: var(--sb-w); flex: 1; max-width: calc(100% - var(--sb-w) - var(--toc-w)); padding: 48px 56px 120px; }
+
+/* RIGHT TOC */
+.toc {
+  width: var(--toc-w); flex-shrink: 0;
+  position: fixed; top: var(--hdr-h); right: 0; bottom: 0;
+  padding: 32px 20px; overflow-y: auto;
+  border-left: 1px solid var(--border);
+}
+.toc-title { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.toc-link { display: block; font-size: 12px; color: var(--text3); text-decoration: none; padding: 3px 0; transition: color .1s; border-left: 2px solid transparent; padding-left: 10px; margin-bottom: 2px; }
+.toc-link:hover { color: var(--text2); }
+.toc-link.active { color: var(--accent); border-left-color: var(--accent); }
+
+/* CONTENT STYLES */
+.section { margin-bottom: 80px; scroll-margin-top: 80px; }
+.section:first-child { padding-top: 0; }
+
+h1 { font-family: 'DM Serif Display', serif; font-size: 36px; font-weight: 400; color: var(--text); margin-bottom: 16px; line-height: 1.2; letter-spacing: -0.5px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; color: var(--text); margin-top: 48px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); scroll-margin-top: 80px; }
+h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-top: 28px; margin-bottom: 10px; scroll-margin-top: 80px; }
+h4 { font-size: 13px; font-weight: 600; color: var(--text2); margin-top: 20px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+p { margin-bottom: 14px; color: var(--text2); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 20px; margin-bottom: 14px; }
+li { color: var(--text2); margin-bottom: 4px; }
+strong { color: var(--text); font-weight: 600; }
+code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--bg4); padding: 2px 6px; border-radius: 4px; color: var(--accent); border: 1px solid var(--border); }
+
+/* LEAD TEXT */
+.lead { font-size: 17px; color: var(--text2); line-height: 1.8; margin-bottom: 28px; }
+
+/* HERO BANNER */
+.hero-banner {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 12px;
+  padding: 32px; margin-bottom: 40px; position: relative; overflow: hidden;
+}
+.hero-banner::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(245,158,11,0.07) 0%, transparent 70%);
+}
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: var(--accent-d); border: 1px solid rgba(245,158,11,0.25); border-radius: 20px; font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 16px; }
+.hero-banner h1 { font-size: 42px; margin-bottom: 12px; }
+.hero-banner p { font-size: 16px; max-width: 560px; }
+.hero-meta { display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap; }
+.hero-meta-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+.hero-meta-item span { color: var(--text); font-weight: 500; }
+
+/* FEATURE GRID */
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 24px 0; }
+.feature-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: border-color .15s; }
+.feature-card:hover { border-color: var(--border2); }
+.feature-icon { font-size: 22px; margin-bottom: 10px; }
+.feature-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin: 0 0 6px; }
+.feature-card p { font-size: 12px; color: var(--text2); margin: 0; line-height: 1.6; }
+
+/* ALERT BOXES */
+.alert { display: flex; gap: 12px; padding: 14px 16px; border-radius: 8px; margin: 20px 0; font-size: 13px; }
+.alert-info  { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; }
+.alert-warn  { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: var(--accent); }
+.alert-tip   { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #6ee7b7; }
+.alert-danger{ background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2);  color: #fca5a5; }
+.alert-icon  { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* CODE BLOCKS */
+.code-block { position: relative; margin: 16px 0; }
+.code-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); background: var(--bg4); padding: 6px 14px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none; display: inline-block; }
+pre {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px; overflow-x: auto; font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 1.7; color: var(--text);
+}
+.code-label + pre { border-radius: 0 8px 8px 8px; }
+.copy-btn {
+  position: absolute; top: 8px; right: 8px; background: var(--bg4); border: 1px solid var(--border);
+  color: var(--text3); border-radius: 5px; padding: 4px 10px; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif;
+}
+.copy-btn:hover { background: var(--border2); color: var(--text2); }
+.copy-btn.copied { color: var(--green); border-color: rgba(16,185,129,0.3); }
+/* Syntax colors */
+.kw  { color: #c792ea; }
+.str { color: #c3e88d; }
+.cmt { color: #546e7a; font-style: italic; }
+.num { color: #f78c6c; }
+.fn  { color: #82aaff; }
+.prop{ color: #ffcb6b; }
+.var { color: var(--text); }
+.op  { color: var(--text2); }
+
+/* TABS */
+.tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+.tab-btn {
+  padding: 8px 18px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer;
+  border: none; background: none; border-bottom: 2px solid transparent; transition: all .15s;
+  font-family: 'DM Sans', sans-serif; margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* METHOD BADGES */
+.method {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px;
+  border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+  margin-right: 8px; flex-shrink: 0;
+}
+.method-get    { background: rgba(59,130,246,.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
+.method-post   { background: rgba(16,185,129,.15);  color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+.method-patch  { background: rgba(245,158,11,.15);  color: var(--accent); border: 1px solid rgba(245,158,11,.3); }
+.method-delete { background: rgba(239,68,68,.15);   color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+.method-put    { background: rgba(139,92,246,.15);  color: #c4b5fd; border: 1px solid rgba(139,92,246,.3); }
+.method-pub    { background: rgba(100,116,139,.15); color: #94a3b8; border: 1px solid rgba(100,116,139,.3); }
+
+/* ENDPOINT CARDS */
+.endpoint-card {
+  border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden;
+  transition: border-color .15s;
+}
+.endpoint-card:hover { border-color: var(--border2); }
+.endpoint-header {
+  display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+  cursor: pointer; background: var(--bg3); user-select: none;
+}
+.endpoint-path { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text); flex: 1; }
+.endpoint-desc { font-size: 12px; color: var(--text2); }
+.endpoint-chevron { color: var(--text3); font-size: 12px; transition: transform .2s; margin-left: auto; }
+.endpoint-card.open .endpoint-chevron { transform: rotate(90deg); }
+.endpoint-card.open { border-color: var(--border2); }
+.endpoint-body { display: none; padding: 0 18px 18px; background: var(--bg2); border-top: 1px solid var(--border); }
+.endpoint-card.open .endpoint-body { display: block; }
+.endpoint-auth { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.auth-public  { background: rgba(100,116,139,.15); color: #94a3b8; }
+.auth-any     { background: rgba(16,185,129,.12);  color: #6ee7b7; }
+.auth-eng     { background: rgba(59,130,246,.12);  color: #93c5fd; }
+.auth-admin   { background: rgba(139,92,246,.12);  color: #c4b5fd; }
+
+/* PARAM TABLE */
+.param-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+.param-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); }
+.param-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.param-table tr:last-child td { border-bottom: none; }
+.param-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+.param-type { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #c792ea; }
+.param-req   { font-size: 10px; font-weight: 700; color: var(--red); }
+.param-opt   { font-size: 10px; font-weight: 600; color: var(--text3); }
+.param-desc  { color: var(--text2); font-size: 12px; }
+
+/* SCHEMA TABLE */
+.schema-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+.schema-table th { text-align: left; padding: 9px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text3); background: var(--bg3); border-bottom: 1px solid var(--border); }
+.schema-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.schema-table tr:last-child td { border-bottom: none; }
+.schema-table tr:hover td { background: rgba(255,255,255,.02); }
+.col-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+.col-pk { color: var(--accent); font-weight: 700; }
+.col-fk { color: var(--blue); }
+.col-type { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #c792ea; }
+.col-desc { font-size: 12px; color: var(--text2); }
+.tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 4px; }
+.tag-pk { background: rgba(245,158,11,.15); color: var(--accent); }
+.tag-fk { background: rgba(59,130,246,.15); color: var(--blue); }
+.tag-idx { background: rgba(16,185,129,.12); color: var(--green); }
+.tag-nn { background: rgba(239,68,68,.12); color: var(--red); }
+
+/* ROLE CARDS */
+.role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+.role-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.role-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
+.role-admin   { background: rgba(139,92,246,.15); color: #c4b5fd; }
+.role-engineer{ background: rgba(59,130,246,.15);  color: #93c5fd; }
+.role-customer{ background: rgba(16,185,129,.15);  color: #6ee7b7; }
+.role-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.role-card p  { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+.role-card ul { font-size: 12px; color: var(--text2); padding-left: 16px; margin: 0; }
+.role-card li { margin-bottom: 3px; }
+
+/* STEPS */
+.steps { counter-reset: step; margin: 20px 0; }
+.step { display: flex; gap: 16px; margin-bottom: 24px; }
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #000;
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+  flex-shrink: 0; margin-top: 2px;
+}
+.step-body { flex: 1; }
+.step-body h3 { font-size: 15px; margin-bottom: 6px; }
+.step-body p  { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+
+/* CREDENTIAL TABLE */
+.cred-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+.cred-table th { padding: 9px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); border-bottom: 1px solid var(--border); font-weight: 600; }
+.cred-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.cred-table tr:last-child td { border-bottom: none; }
+.cred-table td:nth-child(3) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+
+/* SEARCH HIGHLIGHT */
+.search-highlight { background: rgba(245,158,11,0.25); border-radius: 2px; }
+
+/* BACK TO TOP */
+.back-to-top {
+  position: fixed; bottom: 24px; right: calc(var(--toc-w) + 16px); z-index: 50;
+  width: 36px; height: 36px; border-radius: 8px; background: var(--bg4); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--text3); font-size: 14px; transition: all .15s; opacity: 0;
+}
+.back-to-top.visible { opacity: 1; }
+.back-to-top:hover { background: var(--border2); color: var(--text); }
+
+/* RESPONSIVE */
+@media(max-width:1100px) { .toc { display: none; } .main { max-width: calc(100% - var(--sb-w)); } }
+@media(max-width:768px)  { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 20px 80px; max-width: 100%; } }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <a class="logo" href="#introduction">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">Re<b>paro</b></div>
+  </a>
+  <span class="logo-ver">v2.1.0</span>
+  <div class="topbar-search">
+    <span class="search-ico">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search documentation…" oninput="doSearch(this.value)">
+  </div>
+  <nav class="topbar-links">
+    <a href="#api-reference">API</a>
+    <a href="#database">Schema</a>
+    <a href="https://github.com" target="_blank">GitHub</a>
+    <a class="btn-demo" href="index.html" target="_blank">Open Portal →</a>
+  </nav>
+</header>
+
+<div class="page">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-group">
+    <div class="sb-group-label">Overview</div>
+    <a class="sb-link active" href="#introduction">Introduction</a>
+    <a class="sb-link" href="#key-features">Key features</a>
+    <a class="sb-link" href="#portals">Portals overview</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Getting Started</div>
+    <a class="sb-link" href="#requirements">Requirements</a>
+    <a class="sb-link" href="#installation">Installation</a>
+    <a class="sb-link" href="#demo-credentials">Demo credentials</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Architecture</div>
+    <a class="sb-link" href="#tech-stack">Tech stack</a>
+    <a class="sb-link" href="#project-structure">Project structure</a>
+    <a class="sb-link" href="#request-flow">Request flow</a>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-group">
+    <div class="sb-group-label">Authentication</div>
+    <a class="sb-link" href="#auth-overview">How auth works</a>
+    <a class="sb-link" href="#roles-permissions">Roles & permissions</a>
+    <a class="sb-link" href="#2fa">2FA (admin)</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">API Reference</div>
+    <a class="sb-link" href="#api-reference">Overview</a>
+    <a class="sb-link sub" href="#api-auth">Auth endpoints</a>
+    <a class="sb-link sub" href="#api-services">Service endpoints</a>
+    <a class="sb-link sub" href="#api-admin">Admin endpoints</a>
+    <a class="sb-link sub" href="#api-announcements">Announcements</a>
+    <a class="sb-link sub" href="#api-settings">Settings</a>
+    <a class="sb-link sub" href="#api-audit">Audit log</a>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-group">
+    <div class="sb-group-label">Database</div>
+    <a class="sb-link" href="#database">Schema overview</a>
+    <a class="sb-link sub" href="#table-users">users</a>
+    <a class="sb-link sub" href="#table-services">services</a>
+    <a class="sb-link sub" href="#table-activity">service_activity</a>
+    <a class="sb-link sub" href="#table-announcements">announcements</a>
+    <a class="sb-link sub" href="#table-settings">settings</a>
+    <a class="sb-link sub" href="#table-audit">audit_log</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Configuration</div>
+    <a class="sb-link" href="#env-variables">Environment variables</a>
+    <a class="sb-link" href="#notifications-config">Notifications</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Security</div>
+    <a class="sb-link" href="#security">Security overview</a>
+    <a class="sb-link" href="#password-hashing">Password hashing</a>
+    <a class="sb-link" href="#jwt-tokens">JWT tokens</a>
+    <a class="sb-link" href="#cors">CORS</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-group-label">Deployment</div>
+    <a class="sb-link" href="#smart-track">Smart track search</a>
+          <a class="sb-link" href="#theme-system">Theme system</a>
+          <a class="sb-link" href="#deployment">Production checklist</a>
+    <a class="sb-link" href="#postgres-upgrade">Upgrading to PostgreSQL</a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main" id="main">
+
+<!-- INTRODUCTION -->
+<section class="section" id="introduction">
+  <div class="hero-banner">
+    <div class="hero-badge">⚡ Documentation v2.1</div>
+    <h1>Reparo</h1>
+    <p>A full-stack device service management portal for electronics repair centers. Three portals — customer, engineer, and admin — backed by a Node.js REST API and a persistent SQLite database.</p>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:11px;background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,0.3);padding:2px 10px;border-radius:20px;font-weight:700">v2.0 — Theme selector</span><span style="font-size:11px;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,0.3);padding:2px 10px;border-radius:20px;font-weight:700">v2.0 — Multi-field search</span><span style="font-size:11px;background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,0.3);padding:2px 10px;border-radius:20px;font-weight:700">v2.1 — Smart track search</span><span style="font-size:11px;background:var(--purple-dim);color:var(--purple);border:1px solid rgba(139,92,246,0.3);padding:2px 10px;border-radius:20px;font-weight:700">v1.0 — Initial release</span></div><div class="hero-meta">
+      <div class="hero-meta-item">📦 <span>Node.js 22 + Express</span></div>
+      <div class="hero-meta-item">🗄️ <span>SQLite (better-sqlite3)</span></div>
+      <div class="hero-meta-item">🔐 <span>JWT Authentication</span></div>
+      <div class="hero-meta-item">🌐 <span>Vanilla JS SPA</span></div>
+    </div>
+  </div>
+  <p class="lead">Reparo gives repair centers a complete digital workflow — from walk-in intake to device dispatch — with real-time status tracking, customer notifications, and a full audit trail.</p>
+  <p>The system is intentionally designed as a single deployable unit: one <code>npm start</code> launches the Express server which serves the frontend, handles all API calls, and writes to a local SQLite database. No separate build step, no separate frontend server, no external dependencies at runtime.</p>
+
+  <h2 id="key-features">Key features</h2>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">📱</div><h3>Customer portal</h3><p>Submit requests online, track any service by ID without logging in, receive status notifications.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔧</div><h3>Engineer portal</h3><p>Walk-in intake forms, assigned job cards, status updates, intake checklist, personal reports.</p></div>
+    <div class="feature-card"><div class="feature-icon">⚙️</div><h3>Admin panel</h3><p>Full CRUD on all data, user management, analytics, announcements, and complete audit log.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔍</div><h3>Public tracking</h3><p>Customers can track a service request by ID with no account needed — just the reference number.</p></div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics</h3><p>Device type breakdowns, issue category rankings, monthly volume charts, SLA compliance per engineer.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔐</div><h3>Role-based auth</h3><p>Three roles with distinct permissions enforced at the API layer. Admin requires 2FA.</p></div>
+    <div class="feature-card"><div class="feature-icon">📋</div><h3>Audit trail</h3><p>Every status change, user action, and admin operation is appended to the immutable audit log.</p></div>
+    <div class="feature-card"><div class="feature-icon">🎨</div><h3>Theme selector</h3><p>Five built-in themes — Dark, Light, Ocean, Sand, and Violet. Selection persists across sessions.</p></div>
+    <div class="feature-card"><div class="feature-icon">📡</div><h3>Smart track search</h3><p>Customers can find requests by ID, phone number, or email — multiple matches shown as a selectable list.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔎</div><h3>Multi-field search</h3><p>Search across 15 fields simultaneously — ID, name, phone, serial, IMEI, notes, engineer, and more.</p></div>
+    <div class="feature-card"><div class="feature-icon">📤</div><h3>CSV export</h3><p>Export the full service log to CSV with one click from the engineer or admin portal.</p></div>
+  </div>
+
+  <h2 id="portals">Portals overview</h2>
+  <div class="role-grid">
+    <div class="role-card">
+      <div class="role-badge role-customer">Customer</div>
+      <h3>Customer portal</h3>
+      <p>Self-service portal for device owners. Accessible at <code>/</code> after login or registration.</p>
+      <ul>
+        <li>Register / login</li>
+        <li>Submit service requests</li>
+        <li>Track requests by ID (public)</li>
+        <li>View request history</li>
+        <li>Edit profile</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-badge role-engineer">Engineer</div>
+      <h3>Engineer portal</h3>
+      <p>Technician dashboard for managing the service workflow from intake to dispatch.</p>
+      <ul>
+        <li>View assigned jobs</li>
+        <li>Record walk-in service</li>
+        <li>Update status &amp; notes</li>
+        <li>Full service log view</li>
+        <li>Intake checklist</li>
+        <li>Personal performance report</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-badge role-admin">Admin</div>
+      <h3>Admin panel</h3>
+      <p>System control center. Full authority over all data, users, and configuration.</p>
+      <ul>
+        <li>All services — edit, reassign, delete</li>
+        <li>User administration</li>
+        <li>Engineer performance analytics</li>
+        <li>Announcements management</li>
+        <li>Settings &amp; branding</li>
+        <li>Full audit log</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- GETTING STARTED -->
+<section class="section" id="requirements">
+  <h2>Requirements</h2>
+  <p>Reparo requires only Node.js to run. Everything else — the database, the frontend, the API — is bundled in the project.</p>
+  <table class="schema-table">
+    <thead><tr><th>Dependency</th><th>Version</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">Node.js</td><td class="col-type">≥ 18.0</td><td class="col-desc">v22 recommended (LTS). Check: <code>node --version</code></td></tr>
+      <tr><td class="col-name">npm</td><td class="col-type">≥ 9.0</td><td class="col-desc">Bundled with Node.js</td></tr>
+      <tr><td class="col-name">Disk space</td><td class="col-type">~50 MB</td><td class="col-desc">Includes node_modules. Database grows with data.</td></tr>
+      <tr><td class="col-name">Port 3000</td><td class="col-type">TCP</td><td class="col-desc">Configurable via <code>PORT</code> env variable</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="installation">Installation</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Download and extract</h3>
+        <p>Download <code>reparo.zip</code> and extract it.</p>
+        <div class="code-block">
+          <div class="code-label">bash</div>
+          <pre><span class="fn">unzip</span> reparo.zip
+<span class="fn">cd</span> reparo</pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Install dependencies</h3>
+        <p>Installs Express, better-sqlite3, bcryptjs, jsonwebtoken, uuid, and cors.</p>
+        <div class="code-block">
+          <div class="code-label">bash</div>
+          <pre><span class="fn">npm</span> install</pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Start the server</h3>
+        <p>The database is created and seeded automatically on first run.</p>
+        <div class="code-block">
+          <div class="code-label">bash</div>
+          <pre><span class="fn">npm</span> start
+<span class="cmt"># Server running at http://localhost:3000</span>
+<span class="cmt"># Database → ./db/reparo.sqlite</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>Open the portal</h3>
+        <p>Navigate to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> and use a demo login to explore all three portals.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-tip"><div class="alert-icon">💡</div><div>For development with auto-restart on file changes, run <code>npm run dev</code> (requires nodemon: <code>npm install -g nodemon</code>).</div></div>
+
+  <h2 id="demo-credentials">Demo credentials</h2>
+  <table class="cred-table">
+    <thead><tr><th>Portal</th><th>Email</th><th>Password</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="role-badge role-admin" style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Admin</span></td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c1d181115123c08191f140f190e0a521f1311">[email&#160;protected]</a></td><td>Admin1234!</td><td>2FA code: <code>123456</code></td></tr>
+      <tr><td><span class="role-badge role-engineer" style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Engineer</span></td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8de0a3ece1ebecfffee4cdf9e8eee5fee8fffba3eee2e0">[email&#160;protected]</a></td><td>Eng1234!</td><td>Mohammed Al-Farsi</td></tr>
+      <tr><td><span class="role-badge role-customer" style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Customer</span></td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9cf8f9f1f3dce8f9fff4eff9eeeab2fff3f1">[email&#160;protected]</a></td><td>Demo1234!</td><td>Ahmad Al-Rashid</td></tr>
+    </tbody>
+  </table>
+  <div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>Change all default passwords before any production deployment. The JWT secret must also be changed via the <code>JWT_SECRET</code> environment variable.</div></div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section" id="tech-stack">
+  <h2>Tech stack</h2>
+  <table class="schema-table">
+    <thead><tr><th>Layer</th><th>Technology</th><th>Package</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">Runtime</td><td>Node.js 22</td><td>—</td><td class="col-desc">Server-side JavaScript runtime</td></tr>
+      <tr><td class="col-name">Web framework</td><td>Express 4</td><td><code>express</code></td><td class="col-desc">REST API routing and middleware</td></tr>
+      <tr><td class="col-name">Database</td><td>SQLite</td><td><code>better-sqlite3</code></td><td class="col-desc">Synchronous, file-based relational database</td></tr>
+      <tr><td class="col-name">Authentication</td><td>JWT</td><td><code>jsonwebtoken</code></td><td class="col-desc">Stateless token-based auth (8hr expiry)</td></tr>
+      <tr><td class="col-name">Password hashing</td><td>bcrypt</td><td><code>bcryptjs</code></td><td class="col-desc">Adaptive password hashing (cost factor 10)</td></tr>
+      <tr><td class="col-name">IDs</td><td>UUID v4</td><td><code>uuid</code></td><td class="col-desc">Universally unique identifiers for users</td></tr>
+      <tr><td class="col-name">CORS</td><td>cors middleware</td><td><code>cors</code></td><td class="col-desc">Cross-origin request handling</td></tr>
+      <tr><td class="col-name">Frontend</td><td>Vanilla JS SPA</td><td>—</td><td class="col-desc">No framework — plain JS + Fetch API</td></tr>
+      <tr><td class="col-name">Fonts</td><td>Google Fonts</td><td>—</td><td class="col-desc">Syne (UI) + JetBrains Mono (code)</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="project-structure">Project structure</h2>
+  <div class="code-block">
+    <div class="code-label">file tree</div>
+    <pre>reparo/
+├── <span class="prop">server.js</span>              <span class="cmt"># Express entry point — routes, static, error handler</span>
+├── <span class="prop">package.json</span>
+├── <span class="prop">README.md</span>
+├── db/
+│   ├── <span class="prop">setup.js</span>           <span class="cmt"># SQLite schema, seed data, DB connection export</span>
+│   └── <span class="prop">reparo.sqlite</span>    <span class="cmt"># Auto-created on first run</span>
+├── middleware/
+│   └── <span class="prop">auth.js</span>            <span class="cmt"># JWT verify + role guard middleware</span>
+├── routes/
+│   ├── <span class="prop">auth.js</span>            <span class="cmt"># /api/auth/* — login, register, profile</span>
+│   ├── <span class="prop">services.js</span>        <span class="cmt"># /api/services/* — full CRUD + public tracking</span>
+│   └── <span class="prop">admin.js</span>           <span class="cmt"># /api/users, /api/announcements, /api/settings…</span>
+└── public/
+    └── <span class="prop">index.html</span>         <span class="cmt"># Complete frontend SPA (single file)</span></pre>
+  </div>
+
+  <h2 id="request-flow">Request flow</h2>
+  <p>Every request from the browser follows the same path through the stack:</p>
+  <div class="code-block">
+    <pre><span class="cmt">Browser</span>
+  │
+  ├── Static assets (HTML/CSS/JS)
+  │   └── Express static() serves public/index.html
+  │
+  └── API calls (fetch('/api/...')
+      │
+      ├── JWT header extracted by auth middleware
+      ├── Token verified (signature + expiry)
+      ├── Role checked against route requirement
+      │
+      ├── Route handler executes
+      │   └── better-sqlite3 → synchronous SQL query
+      │       └── SQLite file (./db/reparo.sqlite)
+      │
+      └── JSON response returned to browser</pre>
+  </div>
+  <div class="alert alert-info"><div class="alert-icon">ℹ️</div><div><code>better-sqlite3</code> is synchronous — no async/await on queries. This simplifies the code significantly and performs well for workloads up to several hundred concurrent connections. For higher scale, migrate to PostgreSQL with the <code>pg</code> package.</div></div>
+</section>
+
+<!-- AUTHENTICATION -->
+<section class="section" id="auth-overview">
+  <h2>How auth works</h2>
+  <p>Reparo uses <strong>stateless JWT authentication</strong>. When a user logs in, the server signs a token containing their user ID, email, role, and name. This token is stored in the browser's <code>localStorage</code> and sent as a Bearer token on every subsequent API request.</p>
+  <p>The server never stores sessions — it only validates the token's signature and expiry on each request.</p>
+
+  <div class="code-block">
+    <div class="code-label">Token payload (decoded)</div>
+    <pre>{
+  <span class="prop">"id"</span>:    <span class="str">"abc123"</span>,
+  <span class="prop">"email"</span>: <span class="str">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fa97d49b969c9b888993ba8e9f9992899f888cd4999597">[email&#160;protected]</a>"</span>,
+  <span class="prop">"role"</span>:  <span class="str">"Engineer"</span>,
+  <span class="prop">"name"</span>:  <span class="str">"Mohammed Al-Farsi"</span>,
+  <span class="prop">"iat"</span>:   <span class="num">1710000000</span>,
+  <span class="prop">"exp"</span>:   <span class="num">1710028800</span>   <span class="cmt">// 8 hours</span>
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-label">Authorization header format</div>
+    <pre>Authorization: Bearer &lt;token&gt;</pre>
+  </div>
+
+  <h2 id="roles-permissions">Roles &amp; permissions</h2>
+  <table class="schema-table">
+    <thead><tr><th>Capability</th><th>Customer</th><th>Engineer</th><th>Admin</th></tr></thead>
+    <tbody>
+      <tr><td>Submit service request</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>View own services</td><td>✅</td><td>—</td><td>✅</td></tr>
+      <tr><td>Track any service by ID (public)</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>View ALL services</td><td>—</td><td>✅</td><td>✅</td></tr>
+      <tr><td>Update service status / notes / cost</td><td>—</td><td>✅</td><td>✅</td></tr>
+      <tr><td>Reassign engineer</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>Delete service</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>View stats overview</td><td>—</td><td>✅</td><td>✅</td></tr>
+      <tr><td>Manage users</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>Manage announcements</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>Read/write settings</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>View audit log</td><td>—</td><td>—</td><td>✅</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="2fa">2FA (admin)</h2>
+  <p>The admin login form accepts an optional 6-digit TOTP code. In the current implementation this is validated client-side against a fixed demo code (<code>123456</code>). For production, integrate a proper TOTP library such as <code>otplib</code> and store the TOTP secret per user in the database.</p>
+  <div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>The 2FA field is currently for demonstration only. Replace it with real TOTP validation before deploying admin accounts to production.</div></div>
+</section>
+
+<!-- API REFERENCE -->
+<section class="section" id="api-reference">
+  <h2>API Reference</h2>
+  <p>All endpoints are prefixed with <code>/api</code> and return JSON. Authentication uses a Bearer token in the <code>Authorization</code> header. Endpoints marked <span class="endpoint-auth auth-public">public</span> require no authentication.</p>
+
+  <div class="alert alert-info"><div class="alert-icon">ℹ️</div><div>The API base URL is <code>http://localhost:3000/api</code> in development. The frontend sends requests to <code>/api/...</code> relative paths, which are resolved by Express on the same server.</div></div>
+
+  <h2 id="api-auth">Auth endpoints</h2>
+
+  <div class="endpoint-card open">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-post">POST</span>
+      <span class="endpoint-path">/api/auth/login</span>
+      <span class="endpoint-auth auth-public">public</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Authenticate a user and return a signed JWT token. Works for all roles (Customer, Engineer, Admin).</p>
+      <h4>Request body</h4>
+      <table class="param-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">email</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">User email address</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Plain-text password (compared against bcrypt hash)</td></tr>
+        </tbody>
+      </table>
+      <h4>Response — 200 OK</h4>
+      <div class="code-block">
+        <pre>{
+  <span class="prop">"token"</span>: <span class="str">"eyJhbGciOiJIUzI1NiJ9..."</span>,
+  <span class="prop">"user"</span>: {
+    <span class="prop">"id"</span>:        <span class="str">"eng1"</span>,
+    <span class="prop">"firstName"</span>: <span class="str">"Mohammed"</span>,
+    <span class="prop">"lastName"</span>:  <span class="str">"Al-Farsi"</span>,
+    <span class="prop">"name"</span>:      <span class="str">"Mohammed Al-Farsi"</span>,
+    <span class="prop">"email"</span>:     <span class="str">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5a37743b363c3b2829331a2e3f3932293f282c74393537">[email&#160;protected]</a>"</span>,
+    <span class="prop">"phone"</span>:     <span class="str">"+971502222222"</span>,
+    <span class="prop">"role"</span>:      <span class="str">"Engineer"</span>,
+    <span class="prop">"status"</span>:    <span class="str">"Active"</span>
+  }
+}</pre>
+      </div>
+      <h4>Error responses</h4>
+      <table class="param-table">
+        <thead><tr><th>Code</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">400</td><td class="param-desc">Missing email or password</td></tr>
+          <tr><td class="param-name">401</td><td class="param-desc">Email not found or password incorrect</td></tr>
+          <tr><td class="param-name">403</td><td class="param-desc">Account is deactivated</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-post">POST</span>
+      <span class="endpoint-path">/api/auth/register</span>
+      <span class="endpoint-auth auth-public">public</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Register a new customer account. Returns a token immediately — no email verification step.</p>
+      <h4>Request body</h4>
+      <table class="param-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">firstName</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">First name</td></tr>
+          <tr><td class="param-name">lastName</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Last name</td></tr>
+          <tr><td class="param-name">email</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Must be unique across all users</td></tr>
+          <tr><td class="param-name">phone</td><td class="param-type">string</td><td class="param-opt">optional</td><td class="param-desc">Phone number</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Minimum 8 characters</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/api/auth/me</span>
+      <span class="endpoint-auth auth-any">any role</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Returns the full user record for the currently authenticated user. Used on page load to restore session state.</p>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-put">PUT</span>
+      <span class="endpoint-path">/api/auth/me</span>
+      <span class="endpoint-auth auth-any">any role</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Update the authenticated user's own profile. Only the fields provided are changed.</p>
+      <h4>Request body (all optional)</h4>
+      <table class="param-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">firstName</td><td class="param-type">string</td><td class="param-desc">Updated first name</td></tr>
+          <tr><td class="param-name">lastName</td><td class="param-type">string</td><td class="param-desc">Updated last name</td></tr>
+          <tr><td class="param-name">phone</td><td class="param-type">string</td><td class="param-desc">Updated phone number</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-desc">New password (will be bcrypt-hashed)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 id="api-services">Service endpoints</h2>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/api/services</span>
+      <span class="endpoint-auth auth-any">any role</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Returns a list of services. Customers automatically see only their own services. Engineers and Admins see all services. Supports filtering and search.</p>
+      <h4>Query parameters</h4>
+      <table class="param-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">search</td><td class="param-type">string</td><td class="param-desc">Full-text search across 15 fields: ID, customer name, phone, email, brand, model, device type, serial, IMEI, issue category, issue description, diagnosis, engineer name, notes, accessories</td></tr>
+          <tr><td class="param-name">status</td><td class="param-type">string</td><td class="param-desc">Filter by status (Received, Diagnosed, In Progress, etc.)</td></tr>
+          <tr><td class="param-name">priority</td><td class="param-type">string</td><td class="param-desc">Filter by priority (Low, Medium, High)</td></tr>
+          <tr><td class="param-name">engineer_id</td><td class="param-type">string</td><td class="param-desc">Filter by assigned engineer UUID</td></tr>
+          <tr><td class="param-name">limit</td><td class="param-type">number</td><td class="param-desc">Max results (default: 200)</td></tr>
+          <tr><td class="param-name">offset</td><td class="param-type">number</td><td class="param-desc">Pagination offset (default: 0)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/api/services/track/:id</span>
+      <span class="endpoint-auth auth-public">public</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Public endpoint — no authentication required. Returns safe tracking information for a service by its ID (e.g. <code>RPR-0001</code>). Sensitive fields like customer email are excluded.</p>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-post">POST</span>
+      <span class="endpoint-path">/api/services</span>
+      <span class="endpoint-auth auth-any">any role</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Create a new service record. The service ID is auto-generated in the format <code>RPR-XXXX</code>. An initial activity log entry is also created.</p>
+      <h4>Key request fields</h4>
+      <table class="param-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">custName</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Customer full name</td></tr>
+          <tr><td class="param-name">deviceType</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">e.g. "Smartphone", "Laptop"</td></tr>
+          <tr><td class="param-name">brand</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Device brand</td></tr>
+          <tr><td class="param-name">model</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Device model name</td></tr>
+          <tr><td class="param-name">issueCat</td><td class="param-type">string</td><td class="param-req">required</td><td class="param-desc">Issue category (Screen, Battery, etc.)</td></tr>
+          <tr><td class="param-name">priority</td><td class="param-type">string</td><td class="param-opt">optional</td><td class="param-desc">Low | Medium | High (default: Medium)</td></tr>
+          <tr><td class="param-name">engineerId</td><td class="param-type">string</td><td class="param-opt">optional</td><td class="param-desc">UUID of assigned engineer</td></tr>
+          <tr><td class="param-name">source</td><td class="param-type">string</td><td class="param-opt">optional</td><td class="param-desc">"online" | "walk-in" (default: "online")</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-patch">PATCH</span>
+      <span class="endpoint-path">/api/services/:id</span>
+      <span class="endpoint-auth auth-eng">Engineer / Admin</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Partial update of a service. Each field is only updated if provided. Status changes automatically append to the activity timeline.</p>
+      <h4>Request body (all optional)</h4>
+      <table class="param-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">status</td><td class="param-type">string</td><td class="param-desc">New status — triggers activity log entry</td></tr>
+          <tr><td class="param-name">cost</td><td class="param-type">number</td><td class="param-desc">Updated cost estimate (AED)</td></tr>
+          <tr><td class="param-name">engineerId</td><td class="param-type">string</td><td class="param-desc">Reassign to different engineer (Admin only in practice)</td></tr>
+          <tr><td class="param-name">engineerName</td><td class="param-type">string</td><td class="param-desc">Display name for the new engineer</td></tr>
+          <tr><td class="param-name">addNote</td><td class="param-type">string</td><td class="param-desc">Appends a new activity entry with this text</td></tr>
+          <tr><td class="param-name">notes</td><td class="param-type">string</td><td class="param-desc">Updates the top-level notes field</td></tr>
+          <tr><td class="param-name">diagnosis</td><td class="param-type">string</td><td class="param-desc">Engineer's diagnosis text</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-tip" style="margin-top:12px"><div class="alert-icon">💡</div><div>When <code>status</code> is set to <code>"Dispatched"</code>, the <code>dispatch_at</code> timestamp is automatically recorded.</div></div>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-delete">DELETE</span>
+      <span class="endpoint-path">/api/services/:id</span>
+      <span class="endpoint-auth auth-admin">Admin only</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Permanently deletes a service and all its associated activity entries (CASCADE). The action is logged to the audit log before deletion.</p>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/api/services/stats/overview</span>
+      <span class="endpoint-auth auth-eng">Engineer / Admin</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Aggregated statistics for dashboards. Engineers see only their own stats; Admins see system-wide stats.</p>
+      <h4>Response shape</h4>
+      <div class="code-block">
+        <pre>{
+  <span class="prop">"total"</span>:      <span class="num">24</span>,
+  <span class="prop">"active"</span>:     <span class="num">18</span>,
+  <span class="prop">"ready"</span>:      <span class="num">3</span>,
+  <span class="prop">"dispatched"</span>: <span class="num">6</span>,
+  <span class="prop">"overdue"</span>:    <span class="num">2</span>,
+  <span class="prop">"revenue"</span>:    <span class="num">14250</span>,
+  <span class="prop">"highPri"</span>:    <span class="num">4</span>,
+  <span class="prop">"byStatus"</span>:   [{ <span class="prop">"status"</span>: <span class="str">"Received"</span>, <span class="prop">"count"</span>: <span class="num">5</span> }, ...],
+  <span class="prop">"byDevice"</span>:   [{ <span class="prop">"device_type"</span>: <span class="str">"Smartphone"</span>, <span class="prop">"count"</span>: <span class="num">9</span> }, ...],
+  <span class="prop">"byIssue"</span>:    [{ <span class="prop">"issue_cat"</span>: <span class="str">"Screen / Display"</span>, <span class="prop">"count"</span>: <span class="num">6</span> }, ...]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="api-admin">User management</h2>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-get">GET</span>
+      <span class="endpoint-path">/api/users</span>
+      <span class="endpoint-auth auth-admin">Admin only</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Returns all users. Supports filtering by <code>role</code>, <code>status</code>, and <code>search</code> (name or email). Each user record includes a <code>service_count</code> field.</p>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-post">POST</span>
+      <span class="endpoint-path">/api/users</span>
+      <span class="endpoint-auth auth-admin">Admin only</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Create any user type (Customer, Engineer, or Admin). Password is bcrypt-hashed on creation. If no password is supplied, defaults to <code>TempPass1!</code>.</p>
+    </div>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint-header" onclick="toggleEndpoint(this)">
+      <span class="method method-patch">PATCH</span>
+      <span class="endpoint-path">/api/users/:id/status</span>
+      <span class="endpoint-auth auth-admin">Admin only</span>
+      <span class="endpoint-chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="margin-top:14px">Toggles a user's status between <code>Active</code> and <code>Inactive</code>. Deactivated users cannot log in (the login endpoint returns 403).</p>
+    </div>
+  </div>
+
+  <h2 id="api-announcements">Announcements</h2>
+  <p>Announcements appear in the customer portal dashboard. <code>GET /api/announcements</code> is public — no auth required to read announcements.</p>
+
+  <table class="schema-table">
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method method-get" style="display:inline-flex">GET</span></td><td class="col-name">/api/announcements</td><td class="endpoint-auth auth-public">public</td><td class="col-desc">List all announcements</td></tr>
+      <tr><td><span class="method method-post" style="display:inline-flex">POST</span></td><td class="col-name">/api/announcements</td><td class="endpoint-auth auth-admin">admin</td><td class="col-desc">Create announcement</td></tr>
+      <tr><td><span class="method method-patch" style="display:inline-flex">PATCH</span></td><td class="col-name">/api/announcements/:id</td><td class="endpoint-auth auth-admin">admin</td><td class="col-desc">Toggle active/inactive</td></tr>
+      <tr><td><span class="method method-delete" style="display:inline-flex">DELETE</span></td><td class="col-name">/api/announcements/:id</td><td class="endpoint-auth auth-admin">admin</td><td class="col-desc">Delete announcement</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="api-settings">Settings</h2>
+  <p>Settings are stored as key-value pairs in the <code>settings</code> table. <code>GET /api/settings</code> returns the full key-value object.</p>
+
+  <div class="code-block">
+    <div class="code-label">PUT /api/settings — example body</div>
+    <pre>{
+  <span class="prop">"working_hours"</span>: <span class="str">"9:00 AM - 6:00 PM, Sat-Thu"</span>,
+  <span class="prop">"express_fee"</span>:    <span class="str">"75"</span>,
+  <span class="prop">"sla_days"</span>:       <span class="str">"5"</span>,
+  <span class="prop">"notif_sms"</span>:      <span class="str">"1"</span>,
+  <span class="prop">"portal_name"</span>:    <span class="str">"Reparo"</span>
+}</pre>
+  </div>
+
+  <h2 id="api-audit">Audit log</h2>
+  <p><code>GET /api/audit</code> (Admin only) returns the last 100 audit entries in reverse chronological order. Entries are created automatically for login events, service changes, user management actions, and settings updates.</p>
+</section>
+
+<!-- DATABASE -->
+<section class="section" id="database">
+  <h2>Database schema</h2>
+  <p>Reparo uses a single SQLite file at <code>./db/reparo.sqlite</code>. The schema is created automatically on first run by <code>db/setup.js</code>. WAL mode and foreign keys are enabled.</p>
+
+  <div class="code-block">
+    <div class="code-label">SQLite pragmas</div>
+    <pre><span class="kw">PRAGMA</span> journal_mode = WAL;   <span class="cmt">-- Better concurrent read performance</span>
+<span class="kw">PRAGMA</span> foreign_keys = ON;   <span class="cmt">-- Enforce referential integrity</span></pre>
+  </div>
+
+  <h3 id="table-users">users</h3>
+  <p>All portal accounts — customers, engineers, and admins.</p>
+  <table class="schema-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Tags</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name col-pk">id</td><td class="col-type">TEXT</td><td><span class="tag tag-pk">PK</span></td><td class="col-desc">UUID (customers) or short ID (seeded engineers)</td></tr>
+      <tr><td class="col-name">first_name</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">User's first name</td></tr>
+      <tr><td class="col-name">last_name</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">User's last name</td></tr>
+      <tr><td class="col-name">email</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span> <span class="tag tag-idx">UNIQUE</span></td><td class="col-desc">Login email — must be unique</td></tr>
+      <tr><td class="col-name">phone</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Phone number</td></tr>
+      <tr><td class="col-name">password</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">bcrypt hash (cost 10)</td></tr>
+      <tr><td class="col-name">role</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">Customer | Engineer | Admin</td></tr>
+      <tr><td class="col-name">status</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Active | Inactive | On Leave</td></tr>
+      <tr><td class="col-name">created_at</td><td class="col-type">DATETIME</td><td></td><td class="col-desc">Account creation timestamp</td></tr>
+      <tr><td class="col-name">last_active</td><td class="col-type">DATETIME</td><td></td><td class="col-desc">Updated on each successful login</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="table-services">services</h3>
+  <p>Core service records — one row per device intake.</p>
+  <table class="schema-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Tags</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name col-pk">id</td><td class="col-type">TEXT</td><td><span class="tag tag-pk">PK</span></td><td class="col-desc">Format: <code>RPR-0001</code></td></tr>
+      <tr><td class="col-name col-fk">cust_id</td><td class="col-type">TEXT</td><td><span class="tag tag-fk">FK</span></td><td class="col-desc">References users.id</td></tr>
+      <tr><td class="col-name">cust_name</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">Customer name (denormalized for walk-in support)</td></tr>
+      <tr><td class="col-name">cust_phone</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Customer phone</td></tr>
+      <tr><td class="col-name">device_type</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">Smartphone | Laptop | Tablet | etc.</td></tr>
+      <tr><td class="col-name">brand</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">Device brand</td></tr>
+      <tr><td class="col-name">model</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">Device model</td></tr>
+      <tr><td class="col-name">serial</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Serial number</td></tr>
+      <tr><td class="col-name">issue_cat</td><td class="col-type">TEXT</td><td><span class="tag tag-nn">NOT NULL</span></td><td class="col-desc">Issue category</td></tr>
+      <tr><td class="col-name">issue_desc</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Full issue description</td></tr>
+      <tr><td class="col-name">diagnosis</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Engineer's diagnosis</td></tr>
+      <tr><td class="col-name">conditions</td><td class="col-type">TEXT</td><td></td><td class="col-desc">JSON array of physical condition flags</td></tr>
+      <tr><td class="col-name">priority</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Low | Medium | High</td></tr>
+      <tr><td class="col-name">status</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Received → Diagnosed → In Progress → Awaiting Parts → Ready → Dispatched</td></tr>
+      <tr><td class="col-name col-fk">engineer_id</td><td class="col-type">TEXT</td><td><span class="tag tag-fk">FK</span></td><td class="col-desc">References users.id</td></tr>
+      <tr><td class="col-name">engineer_name</td><td class="col-type">TEXT</td><td></td><td class="col-desc">Denormalized for display without JOIN</td></tr>
+      <tr><td class="col-name">cost</td><td class="col-type">REAL</td><td></td><td class="col-desc">Estimated / final cost in AED</td></tr>
+      <tr><td class="col-name">eta</td><td class="col-type">DATETIME</td><td></td><td class="col-desc">Estimated completion date</td></tr>
+      <tr><td class="col-name">dispatch_at</td><td class="col-type">DATETIME</td><td></td><td class="col-desc">Set automatically when status → Dispatched</td></tr>
+      <tr><td class="col-name">last_activity</td><td class="col-type">DATETIME</td><td></td><td class="col-desc">Timestamp of last status/note change</td></tr>
+      <tr><td class="col-name">created_at</td><td class="col-type">DATETIME</td><td></td><td class="col-desc">Intake timestamp (auto)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="table-activity">service_activity</h3>
+  <p>Immutable activity log for each service. Entries are appended-only — never updated or deleted (except via CASCADE when the parent service is deleted by an admin).</p>
+  <table class="schema-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">id</td><td class="col-type">INTEGER</td><td class="col-desc">Auto-increment primary key</td></tr>
+      <tr><td class="col-name col-fk">service_id</td><td class="col-type">TEXT</td><td class="col-desc">References services.id — CASCADE DELETE</td></tr>
+      <tr><td class="col-name">text</td><td class="col-type">TEXT</td><td class="col-desc">Human-readable description of the activity</td></tr>
+      <tr><td class="col-name">type</td><td class="col-type">TEXT</td><td class="col-desc">intake | diagnosis | update | note | status_change | reassign | dispatch</td></tr>
+      <tr><td class="col-name">by_user</td><td class="col-type">TEXT</td><td class="col-desc">Display name of the actor</td></tr>
+      <tr><td class="col-name">created_at</td><td class="col-type">DATETIME</td><td class="col-desc">Timestamp (auto)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="table-announcements">announcements</h3>
+  <table class="schema-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">id</td><td class="col-type">TEXT</td><td class="col-desc">Text ID (ann + timestamp)</td></tr>
+      <tr><td class="col-name">text</td><td class="col-type">TEXT</td><td class="col-desc">Announcement message</td></tr>
+      <tr><td class="col-name">type</td><td class="col-type">TEXT</td><td class="col-desc">info | success | warning | danger</td></tr>
+      <tr><td class="col-name">audience</td><td class="col-type">TEXT</td><td class="col-desc">All users | Customers only | Engineers only</td></tr>
+      <tr><td class="col-name">active</td><td class="col-type">INTEGER</td><td class="col-desc">1 = visible, 0 = hidden</td></tr>
+      <tr><td class="col-name">created_at</td><td class="col-type">DATETIME</td><td class="col-desc">Auto timestamp</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="table-settings">settings</h3>
+  <p>Flat key-value store for portal configuration. All values are stored as TEXT.</p>
+  <table class="schema-table">
+    <thead><tr><th>Key</th><th>Default value</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">working_hours</td><td class="col-type">9:00 AM – 6:00 PM, Sat–Thu</td><td class="col-desc">Displayed to customers</td></tr>
+      <tr><td class="col-name">express_fee</td><td class="col-type">50</td><td class="col-desc">Express service surcharge (AED)</td></tr>
+      <tr><td class="col-name">sla_days</td><td class="col-type">5</td><td class="col-desc">Default SLA in business days</td></tr>
+      <tr><td class="col-name">max_jobs</td><td class="col-type">8</td><td class="col-desc">Max concurrent jobs per engineer</td></tr>
+      <tr><td class="col-name">portal_name</td><td class="col-type">Reparo</td><td class="col-desc">Portal display name</td></tr>
+      <tr><td class="col-name">support_phone</td><td class="col-type">+971 4 000 0000</td><td class="col-desc">Support phone number</td></tr>
+      <tr><td class="col-name">support_email</td><td class="col-type"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6c1f191c1c031e182c18090f041f091e1a420f0301">[email&#160;protected]</a></td><td class="col-desc">Support email</td></tr>
+      <tr><td class="col-name">notif_sms</td><td class="col-type">1</td><td class="col-desc">SMS on intake (1/0)</td></tr>
+      <tr><td class="col-name">notif_email</td><td class="col-type">1</td><td class="col-desc">Email on status change (1/0)</td></tr>
+      <tr><td class="col-name">notif_whatsapp</td><td class="col-type">1</td><td class="col-desc">WhatsApp when ready (1/0)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="table-audit">audit_log</h3>
+  <p>Append-only system audit trail. Admin actions, logins, and data modifications are all recorded here.</p>
+  <table class="schema-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">id</td><td class="col-type">INTEGER</td><td class="col-desc">Auto-increment</td></tr>
+      <tr><td class="col-name">action</td><td class="col-type">TEXT</td><td class="col-desc">Human-readable description of the action</td></tr>
+      <tr><td class="col-name">user_email</td><td class="col-type">TEXT</td><td class="col-desc">Email of the actor (or "system" for automated events)</td></tr>
+      <tr><td class="col-name">ip</td><td class="col-type">TEXT</td><td class="col-desc">Request IP address</td></tr>
+      <tr><td class="col-name">created_at</td><td class="col-type">DATETIME</td><td class="col-desc">Auto timestamp</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CONFIGURATION -->
+<section class="section" id="env-variables">
+  <h2>Environment variables</h2>
+  <table class="schema-table">
+    <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">PORT</td><td class="col-type">3000</td><td class="col-desc">HTTP port the server listens on</td></tr>
+      <tr><td class="col-name">JWT_SECRET</td><td class="col-type">reparo_dev_secret_change_in_prod</td><td class="col-desc"><strong>Change in production.</strong> Used to sign and verify all JWT tokens</td></tr>
+    </tbody>
+  </table>
+  <div class="code-block">
+    <div class="code-label">bash — set for production</div>
+    <pre><span class="kw">export</span> JWT_SECRET=$(openssl rand -base64 32)
+<span class="kw">export</span> PORT=8080
+<span class="fn">npm</span> start</pre>
+  </div>
+
+  <h2 id="notifications-config">Notifications</h2>
+  <p>Notification settings are stored in the database and managed through the Admin → Settings panel. The current implementation shows <code>toast()</code> notifications in the UI as a placeholder. To enable real notifications in production:</p>
+  <ul>
+    <li><strong>SMS</strong> — integrate <a href="https://twilio.com" target="_blank">Twilio</a> and call <code>twilio.messages.create()</code> after service creation.</li>
+    <li><strong>Email</strong> — use <a href="https://sendgrid.com" target="_blank">SendGrid</a> or <a href="https://nodemailer.com" target="_blank">nodemailer</a> on status changes.</li>
+    <li><strong>WhatsApp</strong> — use the Twilio WhatsApp Business API or Meta's Cloud API.</li>
+  </ul>
+</section>
+
+<!-- SECURITY -->
+<section class="section" id="security">
+  <h2>Security overview</h2>
+  <p>Reparo implements several layers of security appropriate for an internal business application.</p>
+
+  <h2 id="password-hashing">Password hashing</h2>
+  <p>All passwords are hashed using <strong>bcrypt</strong> with a cost factor of 10 before storage. Plain-text passwords are never persisted or logged.</p>
+  <div class="code-block">
+    <div class="code-label">db/setup.js — password hashing</div>
+    <pre><span class="kw">const</span> <span class="var">hash</span> = <span class="var">bcrypt</span>.<span class="fn">hashSync</span>(<span class="var">password</span>, <span class="num">10</span>);
+<span class="cmt">// Verification at login:</span>
+<span class="kw">const</span> <span class="var">valid</span> = <span class="var">bcrypt</span>.<span class="fn">compareSync</span>(<span class="var">plainPassword</span>, <span class="var">user</span>.<span class="prop">password</span>);</pre>
+  </div>
+
+  <h2 id="jwt-tokens">JWT tokens</h2>
+  <p>Tokens are signed with HS256 using the <code>JWT_SECRET</code> environment variable. They expire after 8 hours. The middleware validates both the signature and the expiry on every protected request.</p>
+  <div class="code-block">
+    <div class="code-label">middleware/auth.js</div>
+    <pre><span class="kw">function</span> <span class="fn">auth</span>(<span class="var">requiredRole</span>) {
+  <span class="kw">return</span> (<span class="var">req</span>, <span class="var">res</span>, <span class="var">next</span>) => {
+    <span class="kw">const</span> <span class="var">header</span> = <span class="var">req</span>.<span class="prop">headers</span>.<span class="prop">authorization</span>;
+    <span class="kw">if</span> (!<span class="var">header</span>.<span class="fn">startsWith</span>(<span class="str">'Bearer '</span>))
+      <span class="kw">return</span> <span class="var">res</span>.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ <span class="prop">error</span>: <span class="str">'No token'</span> });
+    <span class="kw">const</span> <span class="var">payload</span> = <span class="var">jwt</span>.<span class="fn">verify</span>(<span class="var">header</span>.<span class="fn">slice</span>(<span class="num">7</span>), <span class="var">JWT_SECRET</span>);
+    <span class="var">req</span>.<span class="prop">user</span> = <span class="var">payload</span>;
+    <span class="cmt">// Role check if requiredRole provided</span>
+    <span class="fn">next</span>();
+  };
+}</pre>
+  </div>
+
+  <h2 id="cors">CORS</h2>
+  <p>The <code>cors</code> middleware is included and configured with default settings (allow all origins). For production, restrict to your actual domain:</p>
+  <div class="code-block">
+    <div class="code-label">server.js — restrict CORS in production</div>
+    <pre><span class="var">app</span>.<span class="fn">use</span>(<span class="fn">cors</span>({
+  <span class="prop">origin</span>: <span class="str">'https://reparo.yourdomain.com'</span>,
+  <span class="prop">credentials</span>: <span class="kw">true</span>
+}));</pre>
+  </div>
+
+  <div class="alert alert-danger"><div class="alert-icon">🔐</div><div><strong>Production checklist:</strong> Change JWT_SECRET, restrict CORS to your domain, use HTTPS (nginx + Let's Encrypt), and replace the 2FA demo code with real TOTP validation.</div></div>
+</section>
+
+<!-- DEPLOYMENT -->
+
+<!-- THEME SYSTEM -->
+<section class="section" id="theme-system">
+  <h2>Theme system</h2>
+  <p>Reparo ships with five built-in themes. Users pick a theme from the 🎨 button in the top navigation bar — the selection is saved to <code>localStorage</code> under the key <code>rp_theme</code> and restored on every page load.</p>
+
+  <table class="schema-table">
+    <thead><tr><th>Theme</th><th>Feel</th><th>Accent colour</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">🌑 dark</td><td>Deep charcoal</td><td class="col-type">#f59e0b (amber)</td><td class="col-desc">Default — low-light environments</td></tr>
+      <tr><td class="col-name">☀️ light</td><td>Clean white/gray</td><td class="col-type">#f59e0b (amber)</td><td class="col-desc">Bright offices, print-friendly</td></tr>
+      <tr><td class="col-name">🌊 ocean</td><td>Deep navy blue</td><td class="col-type">#38bdf8 (sky blue)</td><td class="col-desc">Reduced eye strain</td></tr>
+      <tr><td class="col-name">🏜️ sand</td><td>Warm cream/beige</td><td class="col-type">#c2410c (burnt orange)</td><td class="col-desc">Warm ambient light</td></tr>
+      <tr><td class="col-name">🔮 violet</td><td>Rich purple dark</td><td class="col-type">#a78bfa (lavender)</td><td class="col-desc">Evening use</td></tr>
+    </tbody>
+  </table>
+
+  <h3>How it works</h3>
+  <p>Themes work by setting a <code>data-theme</code> attribute on the <code>&lt;html&gt;</code> element. Each theme is a CSS block that overrides the background, text, and border CSS variables defined in <code>:root</code>. Semantic colours (status badges, alerts, buttons) are not overridden — they stay consistent across all themes.</p>
+
+  <div class="code-block">
+    <div class="code-label">CSS structure</div>
+    <pre><span class="cmt">/* Default dark theme lives in :root */</span>
+<span class="kw">:root</span> { <span class="prop">--bg</span>: <span class="str">#0a0c10</span>; <span class="prop">--text</span>: <span class="str">#e2e8f0</span>; ... }
+
+<span class="cmt">/* Each theme overrides only surface variables */</span>
+[<span class="prop">data-theme</span>=<span class="str">"light"</span>] { <span class="prop">--bg</span>: <span class="str">#f8f9fb</span>; <span class="prop">--text</span>: <span class="str">#1a2035</span>; ... }
+[<span class="prop">data-theme</span>=<span class="str">"ocean"</span>] { <span class="prop">--bg</span>: <span class="str">#060e1e</span>; <span class="prop">--accent</span>: <span class="str">#38bdf8</span>; ... }</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-label">JS — applying a theme</div>
+    <pre><span class="fn">applyTheme</span>(<span class="str">'ocean'</span>);
+<span class="cmt">// Sets data-theme="ocean" on &lt;html&gt;</span>
+<span class="cmt">// Saves 'ocean' to localStorage under 'rp_theme'</span>
+<span class="cmt">// Updates the active state in the theme picker panel</span></pre>
+  </div>
+
+  <h3>Adding a custom theme</h3>
+  <p>To add a new theme, add a CSS block in <code>public/index.html</code> and register it in the <code>THEMES</code> array in the JS section:</p>
+
+  <div class="code-block">
+    <div class="code-label">1 — Add CSS</div>
+    <pre>[<span class="prop">data-theme</span>=<span class="str">"forest"</span>] {
+  <span class="prop">--bg</span>: <span class="str">#0a120a</span>; <span class="prop">--bg2</span>: <span class="str">#0f1a0f</span>; <span class="prop">--bg3</span>: <span class="str">#162416</span>;
+  <span class="prop">--accent</span>: <span class="str">#4ade80</span>; <span class="prop">--text</span>: <span class="str">#dcfce7</span>;
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-label">2 — Register in THEMES array</div>
+    <pre>{ <span class="prop">id</span>: <span class="str">'forest'</span>, <span class="prop">name</span>: <span class="str">'Forest'</span>, <span class="prop">swatch</span>: <span class="str">'#0a120a'</span>, <span class="prop">icon</span>: <span class="str">'🌲'</span>, <span class="prop">accent</span>: <span class="str">'#4ade80'</span> }</pre>
+  </div>
+
+  <!-- MULTI-FIELD SEARCH -->
+  <h2 id="multi-search" style="margin-top:48px">Multi-field search</h2>
+  <p>The search box in every grid view searches across multiple database fields simultaneously. A single query like <code>+971</code> will match phone numbers; <code>RPR-</code> matches service IDs; <code>screen</code> matches issue categories.</p>
+
+  <h3>Service search fields</h3>
+  <table class="schema-table">
+    <thead><tr><th>Field</th><th>Example match</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">id</td><td class="col-desc"><code>RPR-0012</code></td></tr>
+      <tr><td class="col-name">cust_name</td><td class="col-desc"><code>Ahmad</code></td></tr>
+      <tr><td class="col-name">cust_phone</td><td class="col-desc"><code>+971 50</code></td></tr>
+      <tr><td class="col-name">cust_email</td><td class="col-desc"><code>@gmail.com</code></td></tr>
+      <tr><td class="col-name">brand</td><td class="col-desc"><code>Apple</code></td></tr>
+      <tr><td class="col-name">model</td><td class="col-desc"><code>iPhone 15</code></td></tr>
+      <tr><td class="col-name">device_type</td><td class="col-desc"><code>Laptop</code></td></tr>
+      <tr><td class="col-name">serial</td><td class="col-desc"><code>SN123456</code></td></tr>
+      <tr><td class="col-name">imei</td><td class="col-desc"><code>352999</code></td></tr>
+      <tr><td class="col-name">issue_cat</td><td class="col-desc"><code>Screen</code></td></tr>
+      <tr><td class="col-name">issue_desc</td><td class="col-desc"><code>random shutdown</code></td></tr>
+      <tr><td class="col-name">diagnosis</td><td class="col-desc"><code>battery failure</code></td></tr>
+      <tr><td class="col-name">engineer_name</td><td class="col-desc"><code>Mohammed</code></td></tr>
+      <tr><td class="col-name">notes</td><td class="col-desc"><code>awaiting customer</code></td></tr>
+      <tr><td class="col-name">accessories</td><td class="col-desc"><code>charger</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Search UX features</h3>
+  <ul>
+    <li><strong>Smart chips</strong> — a label appears below the search box indicating which field category your query is likely targeting</li>
+    <li><strong>Debounce</strong> — API calls fire 300ms after you stop typing, not on every keystroke</li>
+    <li><strong>Clear button</strong> — a ✕ button appears inside the search box when text is entered</li>
+    <li><strong>Result count</strong> — shows how many records match on the right side of the toolbar</li>
+  </ul>
+
+  
+  <h2 id="smart-track" style="margin-top:48px">Smart track search</h2>
+  <p>The <strong>Track Your Request</strong> page accepts three types of input in a single field — no need to know which type you're searching by.</p>
+
+  <table class="schema-table">
+    <thead><tr><th>Input type</th><th>Example</th><th>How it matches</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name">Request ID</td><td class="col-type">RPR-0042</td><td class="col-desc">Case-insensitive exact match on <code>services.id</code></td></tr>
+      <tr><td class="col-name">Phone number</td><td class="col-type">+971501234567</td><td class="col-desc">Strips spaces, dashes, and + then does a LIKE match on <code>cust_phone</code></td></tr>
+      <tr><td class="col-name">Email address</td><td class="col-type">ahmad@email.com</td><td class="col-desc">Case-insensitive LIKE match on <code>cust_email</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Multiple results</h3>
+  <p>When a phone number or email matches more than one service (e.g. a customer has brought in three devices), all matches are shown as a card list. The customer taps a card to expand the full detail view with the progress stepper and activity timeline below the list.</p>
+
+  <h3>API endpoint</h3>
+  <div class="code-block">
+    <div class="code-label">GET /api/services/track/search</div>
+    <pre><span class="cmt"># Search by ID</span>
+GET /api/services/track/search?q=RPR-0042
+
+<span class="cmt"># Search by phone</span>
+GET /api/services/track/search?q=%2B971501234567
+
+<span class="cmt"># Search by email</span>
+GET /api/services/track/search?q=ahmad%40email.com
+
+<span class="cmt"># Response</span>
+{
+  <span class="prop">"count"</span>: <span class="num">2</span>,
+  <span class="prop">"results"</span>: [
+    { <span class="prop">"id"</span>: <span class="str">"RPR-0042"</span>, <span class="prop">"status"</span>: <span class="str">"In Progress"</span>, ... },
+    { <span class="prop">"id"</span>: <span class="str">"RPR-0038"</span>, <span class="prop">"status"</span>: <span class="str">"Dispatched"</span>, ... }
+  ]
+}</pre>
+  </div>
+  <div class="alert alert-info"><div class="alert-icon">ℹ️</div><div>When <code>count === 1</code>, the <code>activities</code> array is included in the single result for the full timeline. For multi-result responses, activities are fetched individually when the customer taps a card.</div></div>
+<div class="alert alert-info"><div class="alert-icon">ℹ️</div><div>Search is case-insensitive and uses SQL <code>LIKE '%query%'</code> matching. It does not support exact-match quoting or boolean operators in this version.</div></div>
+</section>
+<section class="section" id="deployment">
+  <h2>Production checklist</h2>
+  <ul>
+    <li>Set a strong random <code>JWT_SECRET</code> (at least 32 bytes of entropy)</li>
+    <li>Change all default demo passwords for all accounts</li>
+    <li>Restrict CORS to your actual frontend domain</li>
+    <li>Put Node.js behind nginx or Caddy with HTTPS</li>
+    <li>Set up daily backups of <code>db/reparo.sqlite</code></li>
+    <li>Use a process manager like <strong>PM2</strong> to keep the server running</li>
+    <li>Replace 2FA demo code with real TOTP validation</li>
+    <li>Enable firewall — only expose ports 80/443</li>
+  </ul>
+
+  <div class="code-block">
+    <div class="code-label">bash — run with PM2</div>
+    <pre><span class="fn">npm</span> install -g pm2
+<span class="fn">pm2</span> start server.js --name reparo
+<span class="fn">pm2</span> save
+<span class="fn">pm2</span> startup   <span class="cmt"># auto-start on reboot</span></pre>
+  </div>
+
+  <h2 id="postgres-upgrade">Upgrading to PostgreSQL</h2>
+  <p>When you outgrow SQLite (heavy write concurrency, multi-server deployments), the migration path to PostgreSQL is straightforward:</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Replace the package</h3>
+        <div class="code-block">
+          <pre><span class="fn">npm</span> uninstall better-sqlite3
+<span class="fn">npm</span> install pg</pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Update db/setup.js</h3>
+        <p>Replace the <code>better-sqlite3</code> connection with a <code>pg.Pool</code>. Convert synchronous <code>db.prepare().run()</code> calls to <code>await pool.query()</code>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Make route handlers async</h3>
+        <p>All route handler functions will need <code>async</code> added and <code>await</code> before every query.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>Run the schema</h3>
+        <p>The <code>CREATE TABLE</code> statements in <code>db/setup.js</code> are standard SQL and work in PostgreSQL with minor type adjustments (e.g. <code>SERIAL</code> instead of <code>INTEGER AUTOINCREMENT</code>).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- RIGHT TOC -->
+<aside class="toc" id="toc">
+  <div class="toc-title">On this page</div>
+  <a class="toc-link" href="#introduction">Introduction</a>
+  <a class="toc-link" href="#key-features">Key features</a>
+  <a class="toc-link" href="#portals">Portals</a>
+  <a class="toc-link" href="#installation">Installation</a>
+  <a class="toc-link" href="#demo-credentials">Demo credentials</a>
+  <a class="toc-link" href="#tech-stack">Tech stack</a>
+  <a class="toc-link" href="#request-flow">Request flow</a>
+  <a class="toc-link" href="#auth-overview">Auth</a>
+  <a class="toc-link" href="#roles-permissions">Roles</a>
+  <a class="toc-link" href="#api-reference">API reference</a>
+  <a class="toc-link" href="#api-auth">Auth endpoints</a>
+  <a class="toc-link" href="#api-services">Service endpoints</a>
+  <a class="toc-link" href="#api-admin">User management</a>
+  <a class="toc-link" href="#database">Database</a>
+  <a class="toc-link" href="#table-services">services table</a>
+  <a class="toc-link" href="#env-variables">Config</a>
+  <a class="toc-link" href="#security">Security</a>
+  <a class="toc-link" href="#smart-track">Smart track</a>
+  <a class="toc-link" href="#theme-system">Themes</a>
+  <a class="toc-link" href="#deployment">Deployment</a>
+  <a class="toc-link" href="#postgres-upgrade">PostgreSQL</a>
+</aside>
+
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Endpoint toggle
+function toggleEndpoint(header){
+  const card = header.parentElement;
+  card.classList.toggle('open');
+}
+
+// Copy buttons
+document.querySelectorAll('.code-block').forEach(block => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'Copy';
+  block.appendChild(btn);
+  btn.addEventListener('click', () => {
+    const pre = block.querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+    });
+  });
+});
+
+// Active sidebar link tracking
+const sections = document.querySelectorAll('.section, h2, h3');
+const sbLinks  = document.querySelectorAll('.sb-link');
+const tocLinks = document.querySelectorAll('.toc-link');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      if (!id) return;
+      sbLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#'+id));
+      tocLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#'+id));
+    }
+  });
+}, { rootMargin: '-60px 0px -60% 0px', threshold: 0 });
+
+document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+
+// Back to top
+const btt = document.getElementById('backToTop');
+window.addEventListener('scroll', () => btt.classList.toggle('visible', window.scrollY > 400));
+
+// Search
+function doSearch(q) {
+  const main = document.getElementById('main');
+  if (!q) return;
+  ['p','li','td'].forEach(tag => {
+    main.querySelectorAll(tag).forEach(el => {
+      if (el.querySelector('table,pre,code')) return;
+      if (el.textContent.toLowerCase().includes(q.toLowerCase())) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+}
+function switchTab(groupId, tabId) {
+  document.querySelectorAll('[data-group="'+groupId+'"]').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tabId);
+  });
+}
+</script>
+</body>
+</html>
