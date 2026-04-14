@@ -45,20 +45,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── CORS (allowlist via env, fallback to same-origin in prod / localhost in dev) ──
+// ── CORS ──
+// Same-origin requests (including the portal's own SPA calling /api/*) are
+// always allowed. ALLOWED_ORIGINS adds additional cross-origin hosts.
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || (isProd ? '' : 'http://localhost:3000'))
   .split(',').map(s => s.trim()).filter(Boolean);
-app.use(cors({
-  origin: (origin, cb) => {
-    // Same-origin / curl / server-to-server requests have no Origin header
-    if (!origin) return cb(null, true);
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error('Origin not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  credentials: true,
-  optionsSuccessStatus: 204,
-}));
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  // No Origin header → curl / server-to-server / same-origin GET — let it through
+  if (!origin) return next();
+  // Same-origin request: the browser sent Origin matching this host → no CORS needed
+  const selfOrigin = `${req.protocol}://${req.get('host')}`;
+  if (origin === selfOrigin) return next();
+  // Cross-origin: enforce the allowlist via the cors middleware
+  return cors({
+    origin: (o, cb) => {
+      if (allowedOrigins.includes(o)) return cb(null, true);
+      return cb(new Error('Origin not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    optionsSuccessStatus: 204,
+  })(req, res, next);
+});
 
 // ── Body parsing with size cap ──
 app.use(express.json({ limit: '100kb', strict: true }));

@@ -27,8 +27,11 @@ Last reviewed: 2026-04-12
 
 #### 4. Cross-origin requests from any origin (CORS wildcard)
 - **Threat:** `cors()` was called with default options, allowing any origin to hit the API.
-- **Mitigation:** `server.js` configures CORS with an allowlist driven by the `ALLOWED_ORIGINS` environment variable (comma-separated). Requests without an `Origin` header (curl, same-origin, server-to-server) are permitted; any other origin not in the allowlist is rejected.
-- **Operational requirement:** Set `ALLOWED_ORIGINS` to the real production domain(s) before shipping.
+- **Mitigation:** `server.js` wraps the `cors` middleware in a guard that distinguishes three cases:
+  1. **No `Origin` header** (curl, server-to-server, same-origin navigational GETs) → allowed.
+  2. **Same-origin request** (`Origin` matches `${req.protocol}://${req.get('host')}`) → allowed without invoking CORS. This lets the bundled SPA at `public/index.html` call its own `/api/*` endpoints without needing the app's own domain in an allowlist.
+  3. **Genuine cross-origin request** → the `cors` middleware is invoked with an allowlist built from the `ALLOWED_ORIGINS` environment variable. Any origin not in the list is rejected.
+- **Operational requirement:** Set `ALLOWED_ORIGINS` (comma-separated) only if a different domain must call the API — e.g. a separate admin console. The portal itself works with no env var set.
 
 #### 5. Missing HTTP security headers
 - **Threat:** No CSP, HSTS, X-Frame-Options, X-Content-Type-Options, or Referrer-Policy — exposing users to XSS, clickjacking, MIME sniffing, and protocol downgrade.
@@ -119,9 +122,9 @@ These cannot be fixed without input or a decision from the project owner.
 - **Action:** `fly secrets set JWT_SECRET=$(openssl rand -hex 48)`
 - **Severity if ignored:** The server will refuse to start in production (fail-closed), so this is safe but must be done before deploy.
 
-### 2. CORS allowlist not yet populated
-- **Status:** `server.js` reads from the `ALLOWED_ORIGINS` env var; if unset in production, the allowlist is empty and all cross-origin requests will be rejected (which is safe but may break a browser client on a different domain).
-- **Action:** `fly secrets set ALLOWED_ORIGINS="https://app.example.com,https://admin.example.com"`
+### 2. CORS allowlist only needed for cross-origin clients
+- **Status:** Not required for the portal itself — same-origin requests from the bundled SPA are auto-allowed. The `ALLOWED_ORIGINS` env var only needs to be set if a separate-domain client (mobile app, third-party dashboard) needs to call the API.
+- **Action (if needed):** `fly secrets set ALLOWED_ORIGINS="https://app.example.com,https://admin.example.com"`
 
 ### 3. PII stored in plaintext (`cust_phone`, `cust_email`, `serial`, `imei`)
 - **Status:** Unresolved. Requires a key-management decision and a data migration for existing rows.
