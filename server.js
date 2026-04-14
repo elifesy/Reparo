@@ -13,9 +13,13 @@ app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
 // ── HTTPS enforcement (production) ──
+// Only redirect when we can see a forwarded header saying http — internal
+// requests from Fly's health checker hit the app directly with no
+// x-forwarded-proto at all, and must pass through unredirected.
 if (isProd) {
   app.use((req, res, next) => {
-    if (req.secure || req.header('x-forwarded-proto') === 'https') return next();
+    const xfp = req.header('x-forwarded-proto');
+    if (!xfp || xfp === 'https' || req.secure) return next();
     return res.redirect(301, `https://${req.header('host')}${req.url}`);
   });
 }

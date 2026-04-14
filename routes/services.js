@@ -13,7 +13,7 @@ const trackLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many tracking requests. Please wait a few minutes and try again.' },
-  keyGenerator: req => req.ip,
+  // default keyGenerator is IPv6-safe — don't override with `req => req.ip`
 });
 
 // ── Fields safe to expose publicly (no cost, no notes, no customer phone) ────
