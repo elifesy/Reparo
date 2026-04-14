@@ -33,8 +33,34 @@ const STATUS_COPY = {
   'Dispatched':     { emoji: '🚚', line: 'Your device has been dispatched. Expect delivery soon.' },
 };
 
+// ── HTML-escape user-supplied strings before interpolating into the template ──
+function esc(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+// Escape a value safe for use in an HTML attribute URL (href/mailto/tel)
+function escAttr(v) {
+  const s = String(v ?? '');
+  // Reject any javascript:/data: schemes outright
+  if (/^\s*(javascript|data|vbscript):/i.test(s)) return '';
+  return esc(s);
+}
+
 // ── HTML email template ───────────────────────────────────────────────────────
-function buildHtml({ portalName, custName, serviceId, device, status, emoji, line, phone, supportEmail }) {
+function buildHtml(raw) {
+  const portalName   = esc(raw.portalName);
+  const custName     = esc(raw.custName);
+  const serviceId    = esc(raw.serviceId);
+  const device       = esc(raw.device);
+  const status       = esc(raw.status);
+  const emoji        = esc(raw.emoji);
+  const line         = esc(raw.line);
+  const phone        = raw.phone ? escAttr(raw.phone) : '';
+  const supportEmail = escAttr(raw.supportEmail);
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -153,13 +179,14 @@ async function sendTestEmail(to) {
   const portalName = db.prepare(`SELECT value FROM settings WHERE key='portal_name'`).get()?.value || 'Reparo';
   const from = `"${c.smtp_from_name || portalName}" <${c.smtp_from_email || c.smtp_user}>`;
 
+  const safeName = esc(portalName);
   await makeTransport(c).sendMail({
     from,
     to,
     subject: `✅ SMTP Test — ${portalName}`,
     html: `<p style="font-family:sans-serif;font-size:15px;color:#111">
       Your SMTP settings are working correctly.<br><br>
-      <strong>${portalName}</strong> will use this configuration to send status notifications to customers.
+      <strong>${safeName}</strong> will use this configuration to send status notifications to customers.
     </p>`,
   });
 }

@@ -1023,6 +1023,23 @@ tr:hover td{background:rgba(255,255,255,0.015);}
               <button class="btn btn-secondary btn-sm" onclick="showStorageInfo()">📊 Storage Usage</button>
               <button class="btn btn-danger btn-sm" onclick="resetDB()">🗑 Reset All Data to Factory Defaults</button>
             </div>
+            <!-- ═══ BEGIN ISOLATED FEATURE: data-purge (remove this whole block to uninstall) ═══ -->
+            <div style="margin-top:18px;padding:14px 16px;border:2px solid #dc2626;border-radius:10px;background:rgba(220,38,38,.08)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span style="font-size:18px">🚨</span>
+                <strong style="color:#dc2626;font-size:14px;letter-spacing:.02em;text-transform:uppercase">Danger Zone — Purge Old Data</strong>
+              </div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+                Permanently deletes all service requests (and their activity history) older than the specified number of months. <strong style="color:#dc2626">This cannot be undone.</strong>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <label style="font-size:12px;color:var(--text2)">Delete data older than</label>
+                <input id="purge-months" type="number" min="1" max="120" value="12" style="width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text1);font-size:13px">
+                <span style="font-size:12px;color:var(--text2)">month(s)</span>
+                <button class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;font-weight:600" onclick="__purgeOldData()">⚠ Purge Now</button>
+              </div>
+            </div>
+            <!-- ═══ END ISOLATED FEATURE: data-purge ═══ -->
           </div>
           <div class="block"><div class="block-title">🔐 Security</div>
             <div id="sec-settings"></div>
@@ -2527,6 +2544,43 @@ function clearUSearch() {
   if (clear) clear.classList.remove('visible');
   loadUTable();
 }
+
+// ═══ BEGIN ISOLATED FEATURE: data-purge (remove this whole block to uninstall) ═══
+async function __purgeOldData(){
+  const input = document.getElementById('purge-months');
+  const months = parseInt(input?.value, 10);
+  if (!Number.isInteger(months) || months < 1 || months > 120) {
+    toast('error', 'Enter a whole number between 1 and 120 months');
+    return;
+  }
+  // Two-step red-alert confirmation — irreversible operation
+  const first = window.confirm(
+    `⚠ DANGER — IRREVERSIBLE\n\n` +
+    `This will PERMANENTLY DELETE every service request (and its activity history) ` +
+    `older than ${months} month(s).\n\n` +
+    `There is no undo. Continue?`
+  );
+  if (!first) return;
+  const typed = window.prompt(
+    `To confirm, type the number of months exactly (${months}):`
+  );
+  if (String(typed).trim() !== String(months)) {
+    toast('error', 'Confirmation did not match — purge cancelled');
+    return;
+  }
+  try {
+    const res = await POST('/data-purge', { months });
+    toast('success',
+      `🗑 Purged ${res.servicesDeleted} service(s) and ${res.activitiesDeleted} activity row(s) older than ${months} month(s)`
+    );
+    // Refresh any visible admin views if their loaders exist
+    try { if (typeof loadAuditLog    === 'function') loadAuditLog();    } catch(e){}
+    try { if (typeof showStorageInfo === 'function') showStorageInfo(); } catch(e){}
+  } catch (e) {
+    toast('error', e.message || 'Purge failed');
+  }
+}
+// ═══ END ISOLATED FEATURE: data-purge ═══
 
 </script>
 </body>

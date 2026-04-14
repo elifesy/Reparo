@@ -7,6 +7,28 @@ const { sendTestEmail } = require('../utils/mailer');
 
 const router = express.Router();
 
+// ── Shared constants ──
+const ALLOWED_ROLES   = ['Admin', 'Engineer', 'Customer'];
+const ALLOWED_STATUS  = ['Active', 'Inactive', 'On Leave'];
+const ALLOWED_SETTING_KEYS = new Set([
+  'working_hours','express_fee','sla_days','max_jobs',
+  'portal_name','support_phone','support_email','tagline',
+  'notif_sms','notif_email','notif_whatsapp','notif_digest',
+  'sec_2fa','sec_timeout','sec_audit',
+  'portal_logo','nav_brand_text','nav_show_name',
+  'smtp_host','smtp_port','smtp_user','smtp_pass',
+  'smtp_from_name','smtp_from_email','smtp_secure',
+  'email_notify_enabled','email_notify_statuses',
+]);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function validatePasswordStrong(pw) {
+  if (typeof pw !== 'string' || pw.length < 8) return 'Password must be at least 8 characters';
+  if (!/[a-z]/.test(pw)) return 'Password must contain a lowercase letter';
+  if (!/[A-Z]/.test(pw)) return 'Password must contain an uppercase letter';
+  if (!/\d/.test(pw))    return 'Password must contain a number';
+  return null;
+}
+
 // ══════════════════════════════════════
 // USERS  (Admin only except GET self)
 // ══════════════════════════════════════
@@ -34,10 +56,19 @@ router.get('/users', auth(['Admin']), (req, res) => {
 router.post('/users', auth(['Admin']), (req, res) => {
   const { firstName, lastName, email, phone, role, status, password } = req.body;
   if (!firstName||!lastName||!email) return res.status(400).json({ error: 'Name and email required' });
+  if (!EMAIL_RE.test(String(email).trim()))
+    return res.status(400).json({ error: 'Invalid email address' });
+  if (!password) return res.status(400).json({ error: 'Password is required when creating a user' });
+  const pwErr = validatePasswordStrong(password);
+  if (pwErr) return res.status(400).json({ error: pwErr });
+  if (role && !ALLOWED_ROLES.includes(role))
+    return res.status(400).json({ error: 'Invalid role' });
+  if (status && !ALLOWED_STATUS.includes(status))
+    return res.status(400).json({ error: 'Invalid status' });
   if (db.prepare('SELECT id FROM users WHERE email=?').get(email.toLowerCase().trim()))
     return res.status(409).json({ error: 'Email already exists' });
   const id   = uuidv4();
-  const hash = bcrypt.hashSync(password||'TempPass1!', 10);
+  const hash = bcrypt.hashSync(password, 10);
   db.prepare(`INSERT INTO users(id,first_name,last_name,email,phone,password,role,status) VALUES(?,?,?,?,?,?,?,?)`)
     .run(id, firstName.trim(), lastName.trim(), email.toLowerCase().trim(), phone||'', hash, role||'Customer', status||'Active');
   db.prepare('INSERT INTO audit_log(action,user_email,ip) VALUES(?,?,?)').run(`Admin created user ${email}`, req.user.email, req.ip);
@@ -48,6 +79,16 @@ router.put('/users/:id', auth(['Admin']), (req, res) => {
   const u = db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);
   if (!u) return res.status(404).json({ error: 'Not found' });
   const { firstName, lastName, email, phone, role, status, password } = req.body;
+  if (email && !EMAIL_RE.test(String(email).trim()))
+    return res.status(400).json({ error: 'Invalid email address' });
+  if (role && !ALLOWED_ROLES.includes(role))
+    return res.status(400).json({ error: 'Invalid role' });
+  if (status && !ALLOWED_STATUS.includes(status))
+    return res.status(400).json({ error: 'Invalid status' });
+  if (password) {
+    const pwErr = validatePasswordStrong(password);
+    if (pwErr) return res.status(400).json({ error: pwErr });
+  }
   const hash = password ? bcrypt.hashSync(password, 10) : u.password;
   db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,phone=?,role=?,status=?,password=? WHERE id=?')
     .run(firstName||u.first_name, lastName||u.last_name, email||u.email, phone||u.phone, role||u.role, status||u.status, hash, u.id);
@@ -127,11 +168,18 @@ router.get('/settings', auth(['Admin']), (req, res) => {
 });
 
 router.put('/settings', auth(['Admin']), (req, res) => {
+  const entries = Object.entries(req.body || {});
+  for (const [k, v] of entries) {
+    if (!ALLOWED_SETTING_KEYS.has(k))
+      return res.status(400).json({ error: `Unknown setting key: ${k}` });
+    if (v != null && String(v).length > 5000)
+      return res.status(400).json({ error: `Setting value too long: ${k}` });
+  }
   const upsert = db.prepare('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)');
-  const upsertAll = db.transaction(entries => {
-    for (const [k, v] of entries) upsert.run(k, String(v));
+  const upsertAll = db.transaction(list => {
+    for (const [k, v] of list) upsert.run(k, String(v ?? ''));
   });
-  upsertAll(Object.entries(req.body));
+  upsertAll(entries);
   db.prepare('INSERT INTO audit_log(action,user_email,ip) VALUES(?,?,?)').run('Settings updated', req.user.email, req.ip);
   res.json({ message: 'Settings saved' });
 });
@@ -141,8 +189,11 @@ router.put('/settings', auth(['Admin']), (req, res) => {
 // ══════════════════════════════════════
 
 router.get('/audit', auth(['Admin']), (req, res) => {
-  const rows = db.prepare('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 100').all();
-  res.json(rows);
+  const limit  = Math.min(Math.max(Number(req.query.limit)  || 100, 1), 1000);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
+  const total  = db.prepare('SELECT COUNT(*) as n FROM audit_log').get().n;
+  const rows   = db.prepare('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT ? OFFSET ?').all(limit, offset);
+  res.json({ rows, total, limit, offset });
 });
 
 // ══════════════════════════════════════
@@ -157,7 +208,8 @@ router.post('/test-email', auth(['Admin']), async (req, res) => {
     db.prepare('INSERT INTO audit_log(action,user_email,ip) VALUES(?,?,?)').run(`Test email sent to ${to}`, req.user.email, req.ip);
     res.json({ message: 'Test email sent successfully' });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('Test email failed:', e);
+    res.status(500).json({ error: 'Failed to send test email. Check SMTP configuration.' });
   }
 });
 
@@ -222,7 +274,8 @@ router.post('/clear-data', auth(['Admin']), (req, res) => {
     seed(db);
     res.json({ message: 'All data cleared and reset to defaults.' });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('Clear data failed:', e);
+    res.status(500).json({ error: 'Failed to reset data.' });
   }
 });
 

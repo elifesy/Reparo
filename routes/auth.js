@@ -1,13 +1,40 @@
 const express = require('express');
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
 const db      = require('../db/setup');
 const { auth, JWT_SECRET } = require('../middleware/auth');
 const router  = express.Router();
 
+// ── Rate limiters to defeat brute-force ──
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again in a few minutes.' },
+});
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many registration attempts. Please try again later.' },
+});
+
+// ── Validators ──
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function validatePassword(pw) {
+  if (typeof pw !== 'string' || pw.length < 8) return 'Password must be at least 8 characters';
+  if (!/[a-z]/.test(pw)) return 'Password must contain a lowercase letter';
+  if (!/[A-Z]/.test(pw)) return 'Password must contain an uppercase letter';
+  if (!/\d/.test(pw))    return 'Password must contain a number';
+  return null;
+}
+
 // POST /api/auth/login
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
@@ -48,12 +75,14 @@ router.post('/login', (req, res) => {
 });
 
 // POST /api/auth/register  (customers only)
-router.post('/register', (req, res) => {
+router.post('/register', registerLimiter, (req, res) => {
   const { firstName, lastName, email, phone, password } = req.body;
   if (!firstName || !lastName || !email || !password)
     return res.status(400).json({ error: 'All fields required' });
-  if (password.length < 8)
-    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  if (!EMAIL_RE.test(String(email).trim()))
+    return res.status(400).json({ error: 'Please enter a valid email address' });
+  const pwErr = validatePassword(password);
+  if (pwErr) return res.status(400).json({ error: pwErr });
 
   const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase().trim());
   if (exists) return res.status(409).json({ error: 'Email already registered' });
@@ -90,6 +119,10 @@ router.put('/me', auth(), (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Not found' });
 
+  if (password) {
+    const pwErr = validatePassword(password);
+    if (pwErr) return res.status(400).json({ error: pwErr });
+  }
   const newHash = password ? bcrypt.hashSync(password, 10) : user.password;
   db.prepare('UPDATE users SET first_name=?,last_name=?,phone=?,password=?,last_active=CURRENT_TIMESTAMP WHERE id=?')
     .run(firstName||user.first_name, lastName||user.last_name, phone||user.phone, newHash, user.id);

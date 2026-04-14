@@ -45,7 +45,9 @@ function withActivities(svc) {
 
 // ── GET /api/services  (Engineer & Admin see all; Customer sees own) ──
 router.get('/', auth(), (req, res) => {
-  const { status, priority, engineer_id, search, limit = 200, offset = 0 } = req.query;
+  const { status, priority, engineer_id, search } = req.query;
+  const limit  = Math.min(Math.max(Number(req.query.limit)  || 100, 1), 200);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
 
   let where = [];
   let params = [];
@@ -81,7 +83,7 @@ router.get('/', auth(), (req, res) => {
 
   const whereStr = where.length ? 'WHERE ' + where.join(' AND ') : '';
   const rows = db.prepare(`SELECT s.* FROM services s ${whereStr} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`)
-    .all(...params, Number(limit), Number(offset));
+    .all(...params, limit, offset);
 
   res.json(rows.map(withActivities));
 });
@@ -195,11 +197,33 @@ router.post('/', auth(), (req, res) => {
     custId, custName, custPhone, custEmail,
     deviceType, brand, model, serial, imei, color, warranty, purchaseDate,
     issueCat, issueDesc, diagnosis, conditions, accessories,
-    priority, engineerId, engineerName, cost, eta, contactPref, source, notes
+    contactPref, notes
   } = req.body;
+  let { priority, engineerId, engineerName, cost, eta, source } = req.body;
 
   if (!custName || !deviceType || !brand || !model || !issueCat)
     return res.status(400).json({ error: 'Required fields missing' });
+
+  // Customers must never be able to set engineer, cost, priority, or mark as walk-in
+  const isStaff = req.user.role === 'Admin' || req.user.role === 'Engineer';
+  if (!isStaff) {
+    engineerId   = null;
+    engineerName = '';
+    cost         = 0;
+    priority     = 'Medium';
+    source       = 'online';
+    // Customers can only create requests tied to their own account
+    if (custId && custId !== req.user.id)
+      return res.status(403).json({ error: 'Cannot create a request for another user' });
+  }
+
+  // Whitelist enums
+  const ALLOWED_PRIORITY = ['Low','Medium','High'];
+  const ALLOWED_SOURCE   = ['online','walk-in'];
+  if (priority && !ALLOWED_PRIORITY.includes(priority))
+    return res.status(400).json({ error: 'Invalid priority' });
+  if (source && !ALLOWED_SOURCE.includes(source))
+    return res.status(400).json({ error: 'Invalid source' });
 
   const id = 'RPR-' + String(
     (db.prepare('SELECT COUNT(*)+1 as n FROM services').get().n)
@@ -293,15 +317,19 @@ router.delete('/:id', auth('Admin'), (req, res) => {
 // ── GET /api/services/stats/overview  (Admin & Engineer) ──
 router.get('/stats/overview', auth(['Engineer','Admin']), (req, res) => {
   const isEng = req.user.role === 'Engineer';
-  const engFilter = isEng ? `WHERE engineer_id = '${req.user.id}'` : '';
+  // Parameterized engineer filter — never interpolate user input into SQL
+  const engWhere = isEng ? 'engineer_id = ?' : '';
+  const engParams = isEng ? [req.user.id] : [];
+  const whereBase = engWhere ? `WHERE ${engWhere}` : '';
+  const andBase   = engWhere ? `WHERE ${engWhere} AND` : 'WHERE';
 
-  const total   = db.prepare(`SELECT COUNT(*) as n FROM services ${engFilter}`).get().n;
-  const active  = db.prepare(`SELECT COUNT(*) as n FROM services ${engFilter ? engFilter+' AND' : 'WHERE'} status NOT IN ('Dispatched','Cancelled')`).get().n;
-  const ready   = db.prepare(`SELECT COUNT(*) as n FROM services ${engFilter ? engFilter+' AND' : 'WHERE'} status='Ready'`).get().n;
-  const dispatched = db.prepare(`SELECT COUNT(*) as n FROM services ${engFilter ? engFilter+' AND' : 'WHERE'} status='Dispatched'`).get().n;
-  const overdue = db.prepare(`SELECT COUNT(*) as n FROM services ${engFilter ? engFilter+' AND' : 'WHERE'} eta < datetime('now') AND status NOT IN ('Dispatched','Cancelled')`).get().n;
+  const total   = db.prepare(`SELECT COUNT(*) as n FROM services ${whereBase}`).get(...engParams).n;
+  const active  = db.prepare(`SELECT COUNT(*) as n FROM services ${andBase} status NOT IN ('Dispatched','Cancelled')`).get(...engParams).n;
+  const ready   = db.prepare(`SELECT COUNT(*) as n FROM services ${andBase} status='Ready'`).get(...engParams).n;
+  const dispatched = db.prepare(`SELECT COUNT(*) as n FROM services ${andBase} status='Dispatched'`).get(...engParams).n;
+  const overdue = db.prepare(`SELECT COUNT(*) as n FROM services ${andBase} eta < datetime('now') AND status NOT IN ('Dispatched','Cancelled')`).get(...engParams).n;
   const revenue = db.prepare(`SELECT COALESCE(SUM(cost),0) as n FROM services WHERE status='Dispatched'`).get().n;
-  const highPri = db.prepare(`SELECT COUNT(*) as n FROM services ${engFilter ? engFilter+' AND' : 'WHERE'} priority='High' AND status NOT IN ('Dispatched','Cancelled')`).get().n;
+  const highPri = db.prepare(`SELECT COUNT(*) as n FROM services ${andBase} priority='High' AND status NOT IN ('Dispatched','Cancelled')`).get(...engParams).n;
 
   const byStatus = db.prepare(`SELECT status, COUNT(*) as count FROM services GROUP BY status`).all();
   const byDevice = db.prepare(`SELECT device_type, COUNT(*) as count FROM services GROUP BY device_type ORDER BY count DESC`).all();

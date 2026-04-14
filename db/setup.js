@@ -1,5 +1,6 @@
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
@@ -8,6 +9,9 @@ const DB_PATH = process.env.NODE_ENV === 'production'
   ? '/data/reparo.sqlite'
   : path.join(__dirname, 'reparo.sqlite');
 const db = new Database(DB_PATH);
+
+// Restrict DB file to owner-only (best effort — ignored on filesystems that don't support it)
+try { fs.chmodSync(DB_PATH, 0o600); } catch (e) { /* e.g. Windows or mounted volume */ }
 
 // ── Pragmas for performance ──
 db.pragma('journal_mode = WAL');
