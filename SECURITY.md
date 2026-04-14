@@ -33,14 +33,14 @@ Last reviewed: 2026-04-12
 #### 5. Missing HTTP security headers
 - **Threat:** No CSP, HSTS, X-Frame-Options, X-Content-Type-Options, or Referrer-Policy — exposing users to XSS, clickjacking, MIME sniffing, and protocol downgrade.
 - **Mitigation:** `server.js` installs a middleware that sets:
-  - `Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+  - `Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
   - `X-Frame-Options: DENY`
   - `X-Content-Type-Options: nosniff`
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: geolocation=(), microphone=(), camera=()`
   - `Strict-Transport-Security: max-age=31536000; includeSubDomains` (production only)
   - `X-XSS-Protection: 0` (legacy header explicitly disabled per current guidance)
-- **Note:** `'unsafe-inline'` is currently permitted for styles because the SPA uses inline styles. Revisit if the frontend is refactored to external stylesheets only.
+- **Note:** `'unsafe-inline'` is currently permitted for both `style-src` and `script-src` because the bundled SPA in `public/index.html` uses inline `style="..."` attributes and inline `onclick="..."` event handlers throughout. Removing either requires refactoring the SPA — see Pending Threat #5.
 
 #### 6. Brute-force on login/register
 - **Threat:** No rate limit on authentication endpoints.
@@ -132,9 +132,10 @@ These cannot be fixed without input or a decision from the project owner.
 - **Status:** Still present in `db/setup.js` seed block. Safe for development; dangerous if the database is ever seeded in production.
 - **Action:** Either (a) skip seeding entirely when `NODE_ENV === 'production'`, or (b) require seed passwords to be provided via environment variables. Decision needed.
 
-### 5. CSP `'unsafe-inline'` for styles
-- **Status:** Currently permitted because the SPA uses inline `style="..."` attributes.
-- **Action:** If/when the frontend is refactored to use only external stylesheets or nonce-based inline styles, remove `'unsafe-inline'` from the `style-src` directive in `server.js`.
+### 5. CSP `'unsafe-inline'` for scripts and styles
+- **Status:** Currently permitted for both `script-src` and `style-src` because `public/index.html` relies on inline `onclick="..."` handlers and inline `style="..."` attributes throughout. Without `'unsafe-inline'` in `script-src`, every button in the SPA is silently blocked by the browser.
+- **Action:** Refactor the SPA to attach event handlers via `addEventListener` (or delegated listeners) and move inline styles to a stylesheet; then drop `'unsafe-inline'` from both directives in `server.js`. Alternatively, adopt a nonce-based CSP — the middleware would generate a per-request nonce and the template would stamp it onto every `<script>` tag.
+- **Severity:** Medium — the current policy still blocks loading scripts/styles from any external origin, so the main XSS vectors closed are data exfiltration to attacker domains and injection of external script URLs.
 
 ### 6. No 2FA for admin accounts
 - **Status:** The `sec_2fa` setting exists but is not wired to any code path.

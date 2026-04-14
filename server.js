@@ -34,10 +34,13 @@ app.use((req, res, next) => {
   if (isProd) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
-  // Conservative CSP — same-origin only, allows inline styles for the bundled SPA
+  // Conservative CSP — same-origin only. 'unsafe-inline' is permitted for both
+  // scripts and styles because the bundled SPA in public/index.html uses inline
+  // onclick= handlers and style= attributes throughout. See SECURITY.md item #5
+  // under Pending Threats for the follow-up required to tighten this.
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   );
   next();
 });
