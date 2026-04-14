@@ -868,6 +868,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
         <div class="sb-section"><div class="sb-lbl">Overview</div>
           <div class="sb-item active" id="as-home" onclick="aNav('home')"><span class="si">📊</span> Dashboard</div>
           <div class="sb-item" id="as-services" onclick="aNav('services')"><span class="si">🔧</span> All Services</div>
+          <div class="sb-item" id="as-new" onclick="aNav('new')"><span class="si">➕</span> New Service</div>
           <div class="sb-item" id="as-analytics" onclick="aNav('analytics')"><span class="si">📈</span> Analytics</div>
         </div>
         <div class="sb-section"><div class="sb-lbl">Administration</div>
@@ -916,6 +917,64 @@ tr:hover td{background:rgba(255,255,255,0.015);}
             </div>
             <table><thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Engineer</th><th>Intake</th><th>Dispatch</th><th>Last Activity</th><th>Priority</th><th>Status</th><th>Cost</th><th>Actions</th></tr></thead>
             <tbody id="a-tbl-body"></tbody></table>
+          </div>
+        </div>
+        <!-- ADMIN NEW SERVICE -->
+        <div id="ap-new" class="hidden">
+          <div class="ph"><div class="ph-left"><div class="ph-title">Create New Service</div><div class="ph-sub">Admin intake — walk-in, phone, or online</div></div></div>
+          <div class="block"><div class="block-title">👤 Customer Information</div>
+            <div class="fr">
+              <div class="fg"><label>Customer Name *</label><input type="text" id="an-name" placeholder="Full name"></div>
+              <div class="fg"><label>Phone *</label><input type="tel" id="an-phone" placeholder="+971 50 000 0000"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Email</label><input type="email" id="an-email" placeholder="customer@email.com"></div>
+              <div class="fg"><label>Emirates ID / Passport</label><input type="text" id="an-eid" placeholder="Optional" class="mono"></div>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">📱 Device Details</div>
+            <div class="fr">
+              <div class="fg"><label>Device Type *</label><select id="an-type"><option value="">Select…</option><option>Smartphone</option><option>Laptop</option><option>Tablet</option><option>Desktop PC</option><option>Smartwatch</option><option>Gaming Console</option><option>Printer</option><option>TV / Monitor</option><option>Other</option></select></div>
+              <div class="fg"><label>Brand *</label><select id="an-brand"><option value="">Select…</option><option>Apple</option><option>Samsung</option><option>Dell</option><option>HP</option><option>Lenovo</option><option>Sony</option><option>LG</option><option>Huawei</option><option>Xiaomi</option><option>Other</option></select></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Model *</label><input type="text" id="an-model" placeholder="e.g. MacBook Air M3"></div>
+              <div class="fg"><label>Serial Number</label><input type="text" id="an-serial" class="mono" placeholder="Scan or type"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>IMEI (phones)</label><input type="text" id="an-imei" class="mono" placeholder="15-digit IMEI"></div>
+              <div class="fg"><label>Color / Config</label><input type="text" id="an-color" placeholder="Space Gray, 256GB"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Warranty</label><select id="an-warranty"><option>Not sure</option><option>Under warranty</option><option>Expired</option><option>No warranty</option></select></div>
+              <div class="fg"><label>Purchase Date</label><input type="month" id="an-purchase"></div>
+            </div>
+          </div>
+          <div class="block"><div class="block-title">🔧 Issue & Diagnosis</div>
+            <div class="fr">
+              <div class="fg"><label>Issue Category *</label><select id="an-issue"><option value="">Select…</option><option>Screen / Display</option><option>Battery</option><option>Charging / Power</option><option>Speaker / Microphone</option><option>Camera</option><option>Keyboard / Trackpad</option><option>Software / OS</option><option>Connectivity</option><option>Physical Damage</option><option>Water Damage</option><option>Other</option></select></div>
+              <div class="fg"><label>Priority *</label><select id="an-priority"><option value="Low">🟢 Low</option><option value="Medium" selected>🟡 Medium</option><option value="High">🔴 High</option></select></div>
+            </div>
+            <div class="fg"><label>Customer's Description *</label><textarea id="an-cust-issue" placeholder="What the customer reported…"></textarea></div>
+            <div class="fg"><label>Initial Diagnosis</label><textarea id="an-diagnosis" placeholder="Visual inspection findings…"></textarea></div>
+          </div>
+          <div class="block"><div class="block-title">📦 Logistics & Assignment</div>
+            <div class="fr">
+              <div class="fg"><label>Accessories Received</label><input type="text" id="an-acc" placeholder="Charger, case, box…"></div>
+              <div class="fg"><label>Estimated Cost (AED)</label><input type="number" id="an-cost" placeholder="0.00" min="0"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Est. Completion Date</label><input type="date" id="an-eta"></div>
+              <div class="fg"><label>Assign To *</label><select id="an-assign"><option value="">Select engineer…</option></select></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label>Source</label><select id="an-source"><option value="walk-in">Walk-in</option><option value="phone">Phone</option><option value="online">Online</option></select></div>
+              <div class="fg"></div>
+            </div>
+          </div>
+          <div class="flex gap2 justify-between">
+            <button class="btn btn-secondary" onclick="aNav('home')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitAdminService()">Create Service Record →</button>
           </div>
         </div>
         <!-- ANALYTICS -->
@@ -1765,17 +1824,55 @@ async function openAdminDash(){
 }
 
 function aNav(sec){
-  ['home','services','analytics','users','engineers','content','settings'].forEach(s=>{
+  ['home','services','new','analytics','users','engineers','content','settings'].forEach(s=>{
     const ap=document.getElementById('ap-'+s); if(ap) ap.classList.toggle('hidden',s!==sec);
     const as=document.getElementById('as-'+s); if(as) as.classList.toggle('active',s===sec);
   });
   if(sec==='home')      loadAHome();
   if(sec==='services')  loadATable();
+  if(sec==='new')       loadANewForm();
   if(sec==='analytics') loadAnalytics();
   if(sec==='users')     loadUTable();
   if(sec==='engineers') loadAEngCards();
   if(sec==='content')   loadContent();
   if(sec==='settings')  loadSettings();
+}
+
+async function loadANewForm(){
+  try{
+    const engineers = await GET('/users?role=Engineer');
+    const sel=document.getElementById('an-assign');
+    sel.innerHTML='<option value="">Select engineer…</option>'+
+      engineers.map(e=>`<option value="${e.id}" data-name="${e.first_name} ${e.last_name}">${e.first_name} ${e.last_name}</option>`).join('');
+  } catch(e){ toast('error','Failed to load engineers'); }
+}
+
+async function submitAdminService(){
+  const name=document.getElementById('an-name').value.trim(), phone=document.getElementById('an-phone').value.trim();
+  const dt=document.getElementById('an-type').value, br=document.getElementById('an-brand').value;
+  const mo=document.getElementById('an-model').value.trim(), it=document.getElementById('an-issue').value;
+  const desc=document.getElementById('an-cust-issue').value.trim();
+  const sel=document.getElementById('an-assign');
+  const engId=sel.value; const engName=engId?sel.options[sel.selectedIndex].getAttribute('data-name'):'';
+  if(!name||!phone||!dt||!br||!mo||!it||!desc||!engId){toast('error','Please fill all required (*) fields');return;}
+  try{
+    const svc = await POST('/services',{
+      custName:name, custPhone:phone, custEmail:document.getElementById('an-email').value,
+      deviceType:dt, brand:br, model:mo, serial:document.getElementById('an-serial').value,
+      imei:document.getElementById('an-imei').value, color:document.getElementById('an-color').value,
+      issueCat:it, issueDesc:desc, diagnosis:document.getElementById('an-diagnosis').value,
+      priority:document.getElementById('an-priority').value,
+      engineerId:engId, engineerName:engName||'',
+      cost:parseFloat(document.getElementById('an-cost').value)||0,
+      accessories:document.getElementById('an-acc').value,
+      warranty:document.getElementById('an-warranty').value,
+      eta:document.getElementById('an-eta').value,
+      source:document.getElementById('an-source').value
+    });
+    toast('success','✅ Service '+svc.id+' created!');
+    ['an-name','an-phone','an-email','an-eid','an-model','an-serial','an-imei','an-color','an-cust-issue','an-diagnosis','an-acc','an-cost','an-eta'].forEach(id=>document.getElementById(id).value='');
+    aNav('services');
+  } catch(e){ toast('error',e.message); }
 }
 
 async function loadAHome(){
