@@ -49,7 +49,7 @@ Last reviewed: 2026-04-12
 - **Threat:** No rate limit on authentication endpoints.
 - **Mitigation:**
   - `routes/auth.js` applies `express-rate-limit` per-route: login = 10 attempts / 15 min / IP, register = 5 / hour / IP.
-  - `server.js` also applies a global limiter of 200 requests / minute / IP on `/api/*` as defense in depth.
+  - `server.js` also applies a global limiter of 500 requests / minute / IP on `/api/*` as defense in depth.
 
 #### 7. Weak password policy
 - **Threat:** Registration only checked `password.length >= 8`.

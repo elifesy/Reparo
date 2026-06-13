@@ -75,7 +75,7 @@ app.use(express.json({ limit: '100kb', strict: true }));
 // ── Global API rate limit (admins can be exempted in route-level limiters) ──
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 200,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please slow down.' },
