@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reparo — Hosting Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid #2d3748;
+      padding-bottom: 24px;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2 .icon {
+      font-size: 1.1rem;
+    }
+
+    section {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+
+    section.danger {
+      border-left: 4px solid #e53e3e;
+    }
+
+    section.warning {
+      border-left: 4px solid #d69e2e;
+    }
+
+    section.success {
+      border-left: 4px solid #38a169;
+    }
+
+    section.info {
+      border-left: 4px solid #3182ce;
+    }
+
+    p { color: #cbd5e0; margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge.no  { background: #742a2a; color: #feb2b2; }
+    .badge.yes { background: #1c4532; color: #9ae6b4; }
+    .badge.maybe { background: #744210; color: #fbd38d; }
+    .badge.best { background: #1a365d; color: #90cdf4; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    th {
+      text-align: left;
+      color: #718096;
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 12px;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    td {
+      padding: 12px 12px;
+      border-bottom: 1px solid #1e2535;
+      color: #cbd5e0;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    td:first-child { font-weight: 600; color: #e2e8f0; white-space: nowrap; }
+
+    .note {
+      background: #161b2a;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-top: 14px;
+    }
+
+    .note strong { color: #e2e8f0; }
+
+    ul {
+      padding-left: 20px;
+      color: #cbd5e0;
+    }
+
+    ul li { margin-bottom: 6px; }
+
+    .highlight-box {
+      background: #1c4532;
+      border: 1px solid #276749;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-top: 10px;
+    }
+
+    .highlight-box p {
+      color: #9ae6b4;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    code {
+      background: #2d3748;
+      color: #f6ad55;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: "Fira Code", "Courier New", monospace;
+      font-size: 0.85em;
+    }
+
+    footer {
+      text-align: center;
+      color: #4a5568;
+      font-size: 0.82rem;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #2d3748;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Reparo — Hosting Guide</h1>
+      <p>Reference sheet for customer conversations about where to host Reparo.</p>
+    </header>
+
+    <!-- Traditional Hosts -->
+    <section class="danger">
+      <h2><span class="icon">🚫</span> Traditional Web Hosts (GoDaddy Shared, Hostinger, Bluehost…)</h2>
+      <p><strong>These will not work for Reparo.</strong> They are built for PHP + WordPress, not Node.js applications.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Why it blocks Reparo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>No persistent process</td>
+            <td>Reparo runs as <code>node server.js</code> — a long-lived process shared hosts don't allow.</td>
+          </tr>
+          <tr>
+            <td>No native compilation</td>
+            <td><code>better-sqlite3</code> compiles C++ bindings at install. No shell access = no install.</td>
+          </tr>
+          <tr>
+            <td>No port binding</td>
+            <td>Reparo binds to a port (e.g. 3000). Apache controls all ports on shared hosting.</td>
+          </tr>
+          <tr>
+            <td>Ephemeral filesystem</td>
+            <td>No guarantee the SQLite file (<code>/data/reparo.sqlite</code>) survives a server restart.</td>
+          </tr>
+          <tr>
+            <td>No terminal / npm</td>
+            <td>You can't run <code>npm install</code> or start the server. Only file uploads via FTP.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GoDaddy VPS exception -->
+    <section class="warning">
+      <h2><span class="icon">⚠️</span> GoDaddy VPS or Dedicated Server — Different Story</h2>
+      <p>GoDaddy sells two very different products. The distinction matters:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Works?</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GoDaddy Shared Hosting</td>
+            <td><span class="badge no">No</span></td>
+            <td>Same problems as above — PHP/Apache environment, no Node.</td>
+          </tr>
+          <tr>
+            <td>GoDaddy VPS / Dedicated</td>
+            <td><span class="badge yes">Yes</span></td>
+            <td>It's a real Linux server. Install Node, PM2, run Reparo normally.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <strong>Rule of thumb:</strong> if the customer has shell (SSH) access and can run commands, it will work. If they only get a cPanel file manager, it won't.
+      </div>
+    </section>
+
+    <!-- Good hosting options -->
+    <section class="success">
+      <h2><span class="icon">✅</span> Platforms That Work Well</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Fit</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fly.io</td>
+            <td><span class="badge best">Best fit</span></td>
+            <td>Already configured in Reparo's deploy scripts. Persistent volumes, Docker-based, great SQLite support.</td>
+          </tr>
+          <tr>
+            <td>Railway</td>
+            <td><span class="badge yes">Good</span></td>
+            <td>Persistent volumes available, auto-detects Node, easy env vars. Minimal setup.</td>
+          </tr>
+          <tr>
+            <td>Render</td>
+            <td><span class="badge yes">Good</span></td>
+            <td>Persistent disks on paid plans. Free tier uses ephemeral disk — SQLite data lost on redeploy.</td>
+          </tr>
+          <tr>
+            <td>VPS (Hetzner / DigitalOcean / Linode)</td>
+            <td><span class="badge yes">Full control</span></td>
+            <td>~$6/month. You manage Node, PM2, SSL (Caddy). Best for long-term stability. No platform lock-in.</td>
+          </tr>
+          <tr>
+            <td>DigitalOcean App Platform</td>
+            <td><span class="badge maybe">Moderate</span></td>
+            <td>Needs a mounted volume for SQLite. Simpler if you ever switch to Postgres.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Platforms that won't work -->
+    <section class="danger">
+      <h2><span class="icon">🚫</span> Platforms That Won't Work</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Heroku (free/eco tier)</td>
+            <td>Ephemeral filesystem — SQLite data is wiped on every dyno restart or redeploy.</td>
+          </tr>
+          <tr>
+            <td>Vercel</td>
+            <td>Serverless functions only — no persistent Express server, no file system.</td>
+          </tr>
+          <tr>
+            <td>Netlify</td>
+            <td>Same as Vercel — JAMstack/serverless, not suited for a stateful Node + SQLite backend.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- What you need -->
+    <section class="info">
+      <h2><span class="icon">📋</span> What's Needed on Any Host</h2>
+      <ul>
+        <li><strong>Persistent disk</strong> — must keep <code>/data/reparo.sqlite</code> across restarts and deploys.</li>
+        <li><strong>Node.js runtime</strong> — v18+ recommended; <code>better-sqlite3</code> must compile on the target OS.</li>
+        <li><strong>Environment variables</strong> — <code>NODE_ENV</code>, <code>JWT_SECRET</code>, <code>ALLOWED_ORIGINS</code> (required in production for CORS), and optionally <code>PORT</code>. SMTP credentials are <em>not</em> env vars — they're configured in the admin Settings UI and stored in the database.</li>
+        <li><strong>Shell / SSH access</strong> — needed to run <code>npm install</code> and start the server.</li>
+        <li><strong>Docker (optional but recommended)</strong> — ensures native modules compile correctly for Linux.</li>
+      </ul>
+    </section>
+
+    <!-- Bottom line -->
+    <section class="success">
+      <h2><span class="icon">💡</span> Bottom Line for Customers</h2>
+      <div class="highlight-box">
+        <p>If they want to keep it simple and managed → <strong>Fly.io or Railway</strong> (already configured, ~$5–10/month).</p>
+      </div>
+      <div class="highlight-box" style="margin-top: 10px; background: #1a365d; border-color: #2c5282;">
+        <p style="color: #90cdf4;">If they want full control and lowest cost → <strong>VPS on Hetzner or DigitalOcean</strong> (~$6/month, yours forever).</p>
+      </div>
+      <div class="note" style="margin-top: 14px;">
+        <strong>If a customer insists on GoDaddy:</strong> ask specifically if they have a VPS or Dedicated plan with SSH access. If it's shared hosting, it won't work and there's no workaround without rewriting the backend.
+      </div>
+    </section>
+
+    <footer>
+      Reparo Internal Reference &mdash; Generated 2026
+    </footer>
+
+  </div>
+</body>
+</html>
